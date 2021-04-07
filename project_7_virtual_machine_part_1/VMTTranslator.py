@@ -3,7 +3,9 @@ import sys
 
 def main():
     """
-    Read and translate .vm file to assembly code
+    Open file containing VM instructions and translate it
+    into assembly code.
+    <file.vm> -> <file.asm>
     """
     if len(sys.argv) != 2:
         print('Incorrent number of arguments (1 required).')
