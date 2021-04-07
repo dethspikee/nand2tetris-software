@@ -37,12 +37,21 @@ class Parser:
                 continue
             self.commands.append(line.rstrip('\n'))
 
-    def command_type(self):
+    def command_type(self) -> str:
         """
         Read commands stored in the 'commands' list;
         retrieve command without arguments and return
         its type
         """
+        commands = {
+                'add': 'C_ARITHMETIC',
+                'sub': 'C_ARITHMETIC',
+                'push': 'C_PUSH',
+                'pop': 'C_POP',
+                }
+        for command in self.commands:
+            command = command.split()[0]
+            return commands[command]
 
     def __enter__(self):
         self.fp = open(self.file_arg)
