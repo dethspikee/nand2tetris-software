@@ -26,6 +26,10 @@ class Parser:
         self.instructions = []
 
     def parse(self):
+        """
+        Retrieve all instructions from the source file;
+        and store them in the 'instructions' list
+        """
         for line in self.fp.readlines():
             if line[:2] in ['\n', '//']:
                 continue
