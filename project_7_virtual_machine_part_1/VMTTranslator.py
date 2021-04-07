@@ -20,7 +20,6 @@ def main():
         print(fp.commands)
 
 
-
 class Parser:
 
     def __init__(self, file_arg):
@@ -60,6 +59,7 @@ class Parser:
     def __exit__(self, exc_type, exc_value, traceback):
         self.fp.close()
         print('File has been closed...')
+
 
 if __name__ == '__main__':
     main()
