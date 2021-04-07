@@ -3,7 +3,7 @@ import sys
 
 def main():
     """
-    Open file containing VM instructions and translate it
+    Open file containing VM commands and translate it
     into assembly code.
     <file.vm> -> <file.asm>
     """
@@ -17,7 +17,7 @@ def main():
 
     with Parser(file_arg) as fp:
         fp.parse()
-        print(fp.instructions)
+        print(fp.commands)
 
 
 
@@ -25,17 +25,24 @@ class Parser:
 
     def __init__(self, file_arg):
         self.file_arg = file_arg
-        self.instructions = []
+        self.commands = []
 
     def parse(self):
         """
-        Retrieve all instructions from the source file;
-        and store them in the 'instructions' list
+        Retrieve all commands from the source file;
+        and store them in the 'commands' list
         """
         for line in self.fp.readlines():
             if line[:2] in ['\n', '//']:
                 continue
-            self.instructions.append(line.rstrip('\n'))
+            self.commands.append(line.rstrip('\n'))
+
+    def command_type(self):
+        """
+        Read commands stored in the 'commands' list;
+        retrieve command without arguments and return
+        its type
+        """
 
     def __enter__(self):
         self.fp = open(self.file_arg)
