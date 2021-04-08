@@ -41,6 +41,9 @@ class Parser:
                 arg_2 = self.get_argument_2(command)
             else:
                 arg_2 = ''
+            
+            if command_type == ('C_PUSH' or 'C_POP'):
+                self.writePushPop(command)
 
 
     def command_type(self, command: str) -> str:
@@ -72,16 +75,35 @@ class Parser:
         argument = command.split()[-1]
         return int(argument)
 
+    def writePushPop(self, command):
+        action = command.split()[0]
+        arg_1 = self.get_argument_1(command)
+        arg_2 = self.get_argument_2(command)
+        
+        if action == 'push' and arg_1 == 'constant':
+            self.outfp.write(f'@{arg_2}\n')
+            self.outfp.write(f'D=A\n')
+            self.outfp.write(f'D=A\n')
+            self.outfp.write(f'@SP\n')
+            self.outfp.write(f'A=M\n')
+            self.outfp.write(f'M=D\n')
+            self.outfp.write(f'@SP\n')
+            self.outfp.write(f'M=M+1\n')
+
+
     def __enter__(self):
         try:
             self.fp = open(self.file_arg, 'rt')
         except FileNotFoundError:
             print('File not found')
             sys.exit(1)
+
+        self.outfp = open(f'{self.filename}.asm', mode='wt')
         return self
 
     def __exit__(self, exc_type, exc_value, traceback):
         self.fp.close()
+        self.outfp.close()
         print(f'Succesfully created {self.filename}.asm')
 
 
