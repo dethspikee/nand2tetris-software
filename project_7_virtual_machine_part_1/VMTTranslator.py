@@ -34,6 +34,8 @@ class Parser:
                 continue
             command = line.rstrip('\n');
             command_type = self.command_type(command)
+            if command_type != 'C_RETURN':
+                arg_1 = self.get_argument_1(command)
 
     def command_type(self, command: str) -> str:
         """
@@ -47,6 +49,14 @@ class Parser:
                 }
         command = command.split()[0]
         return commands[command]
+
+    def get_argument_1(self, command: str) -> str:
+        """
+        Return first argument of the command received;
+        return command itself if C_ARITHMETIC
+        """
+        argument = command.split()
+        return argument[0] if len(argument) == 1 else argument[1]
 
     def __enter__(self):
         try:
