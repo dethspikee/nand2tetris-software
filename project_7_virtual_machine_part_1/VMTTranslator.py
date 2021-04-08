@@ -36,6 +36,9 @@ class Parser:
             command_type = self.command_type(command)
             if command_type != 'C_RETURN':
                 arg_1 = self.get_argument_1(command)
+            if command_type in ['C_PUSH', 'C_POP',
+                                'C_FUNCTION', 'C_CALL']:
+                arg_2 = self.get_argument_2(command)
 
     def command_type(self, command: str) -> str:
         """
@@ -57,6 +60,14 @@ class Parser:
         """
         argument = command.split()
         return argument[0] if len(argument) == 1 else argument[1]
+
+    def get_argument_2(self, command: str) -> int:
+        """
+        Return second argument of the command received;
+        converted to int
+        """
+        argument = command.split()[-1]
+        return int(argument)
 
     def __enter__(self):
         try:
