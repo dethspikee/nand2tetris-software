@@ -53,7 +53,7 @@ class Parser:
             return commands[command]
 
     def __enter__(self):
-        self.fp = open(self.file_arg)
+        self.fp = open(self.file_arg, 'rt')
         return self
 
     def __exit__(self, exc_type, exc_value, traceback):
