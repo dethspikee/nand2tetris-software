@@ -17,14 +17,12 @@ def main():
 
     with Parser(file_arg) as fp:
         fp.parse()
-        print(fp.command_type())
 
 
 class Parser:
 
     def __init__(self, file_arg):
         self.file_arg = file_arg
-        self.commands = []
 
     def parse(self):
         """
@@ -34,7 +32,8 @@ class Parser:
         for line in self.fp.readlines():
             if line[:2] in ['\n', '//']:
                 continue
-            self.commands.append(line.rstrip('\n'))
+            command = line.rstrip('\n');
+            print(command)
 
     def command_type(self) -> str:
         """
