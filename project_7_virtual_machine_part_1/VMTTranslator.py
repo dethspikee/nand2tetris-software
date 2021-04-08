@@ -15,14 +15,15 @@ def main():
     file_arg = sys.argv[1]
     filename, extension = file_arg.split('.')
 
-    with Parser(file_arg) as fp:
+    with Parser(file_arg, filename) as fp:
         fp.parse()
 
 
 class Parser:
 
-    def __init__(self, file_arg):
+    def __init__(self, file_arg, filename):
         self.file_arg = file_arg
+        self.filename = filename
 
     def parse(self):
         """
@@ -79,7 +80,7 @@ class Parser:
 
     def __exit__(self, exc_type, exc_value, traceback):
         self.fp.close()
-        print('File has been closed...')
+        print(f'Succesfully created {self.filename}.asm')
 
 
 if __name__ == '__main__':
