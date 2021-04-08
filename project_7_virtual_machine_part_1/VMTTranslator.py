@@ -37,9 +37,11 @@ class Parser:
             command_type = self.command_type(command)
             if command_type != 'C_RETURN':
                 arg_1 = self.get_argument_1(command)
-            if command_type in ['C_PUSH', 'C_POP',
-                                'C_FUNCTION', 'C_CALL']:
+            if command_type in ['C_PUSH', 'C_POP', 'C_FUNCTION', 'C_CALL']:
                 arg_2 = self.get_argument_2(command)
+            else:
+                arg_2 = ''
+
 
     def command_type(self, command: str) -> str:
         """
@@ -85,4 +87,3 @@ class Parser:
 
 if __name__ == '__main__':
     main()
-
