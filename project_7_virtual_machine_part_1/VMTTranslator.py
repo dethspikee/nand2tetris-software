@@ -33,13 +33,11 @@ class Parser:
             if line[:2] in ['\n', '//']:
                 continue
             command = line.rstrip('\n');
-            print(command)
+            command_type = self.command_type(command)
 
-    def command_type(self) -> str:
+    def command_type(self, command: str) -> str:
         """
-        Read commands stored in the 'commands' list;
-        retrieve command without arguments and return
-        its type
+        Return command type based on the command received
         """
         commands = {
                 'add': 'C_ARITHMETIC',
@@ -47,9 +45,8 @@ class Parser:
                 'push': 'C_PUSH',
                 'pop': 'C_POP',
                 }
-        for command in self.commands:
-            command = command.split()[0]
-            return commands[command]
+        command = command.split()[0]
+        return commands[command]
 
     def __enter__(self):
         try:
