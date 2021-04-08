@@ -17,7 +17,7 @@ def main():
 
     with Parser(file_arg) as fp:
         fp.parse()
-        print(fp.commands)
+        print(fp.command_type())
 
 
 class Parser:
@@ -56,13 +56,13 @@ class Parser:
         try:
             self.fp = open(self.file_arg, 'rt')
         except FileNotFoundError:
+            print('File not found')
             sys.exit(1)
         return self
 
     def __exit__(self, exc_type, exc_value, traceback):
         self.fp.close()
         print('File has been closed...')
-        print(exc_type)
 
 
 if __name__ == '__main__':
