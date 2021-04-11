@@ -9,7 +9,7 @@ def main():
     """
     if len(sys.argv) != 2:
         print('Incorrent number of arguments (1 required).')
-        print('usage: python3 VMTranslator <input_file.vm>')
+        print('usage: python3 VMTranslator <input_file.vm>/<input_folder>')
         sys.exit(1)
 
     file_arg = sys.argv[1]
