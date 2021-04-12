@@ -1,4 +1,5 @@
 import sys
+import os
 
 
 def main():
@@ -12,18 +13,18 @@ def main():
         print('usage: python3 VMTranslator <input_file.vm>/<input_folder>')
         sys.exit(1)
 
-    file_arg = sys.argv[1]
-    filename, extension = file_arg.split('.')
-
-    with Parser(file_arg, filename) as fp:
-        fp.parse()
-
+    with Parser(sys.argv[1]) as vmtranslator:
+        vmtranslator.parse2()
+         
 
 class Parser:
 
-    def __init__(self, file_arg, filename):
-        self.file_arg = file_arg
-        self.filename = filename
+    def __init__(self, source):
+        self.source = source
+
+    def parse2(self):
+        for file_ in self.files:
+            print(file_)
 
     def parse(self):
         """
@@ -92,19 +93,25 @@ class Parser:
 
 
     def __enter__(self):
-        try:
-            self.fp = open(self.file_arg, 'rt')
-        except FileNotFoundError:
-            print('File not found')
+        self.files = []
+        if os.path.isdir(self.source):
+            self.files.extend(os.listdir(self.source))
+            filepath = os.path.join('.', self.source, f'{self.source}.asm')
+            self.target = open(f'{filepath}', 'wt')
+        elif '.vm' in self.source:
+            self.files.append(self.source)
+            name, extension = self.source.split('.')
+            self.target = open(f'{name}.asm', 'wt')
+        else:
+            print('Problem opening input file.')
+            print('Only .vm files are accepted')
             sys.exit(1)
 
-        self.outfp = open(f'{self.filename}.asm', mode='wt')
         return self
 
     def __exit__(self, exc_type, exc_value, traceback):
-        self.fp.close()
-        self.outfp.close()
-        print(f'Succesfully created {self.filename}.asm')
+        self.target.close()
+        print('Target closed succesfully')
 
 
 if __name__ == '__main__':
