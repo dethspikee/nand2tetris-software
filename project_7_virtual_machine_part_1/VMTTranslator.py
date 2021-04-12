@@ -138,8 +138,5 @@ class Translator:
             self.outfp.write(f'@SP\n')
             self.outfp.write(f'M=M+1\n')
 
-
-
-
 if __name__ == '__main__':
     main()
