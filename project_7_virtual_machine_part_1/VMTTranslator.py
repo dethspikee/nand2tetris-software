@@ -95,7 +95,9 @@ class Parser:
     def __enter__(self):
         self.files = []
         if os.path.isdir(self.source):
-            self.files.extend(os.listdir(self.source))
+            for file_ in os.listdir(self.source):
+                if '.vm' in file_:
+                    self.files.append(file_)
             filepath = os.path.join('.', self.source, f'{self.source}.asm')
             self.target = open(f'{filepath}', 'wt')
         elif '.vm' in self.source:
@@ -106,7 +108,6 @@ class Parser:
             print('Problem opening input file.')
             print('Only .vm files are accepted')
             sys.exit(1)
-
         return self
 
     def __exit__(self, exc_type, exc_value, traceback):
