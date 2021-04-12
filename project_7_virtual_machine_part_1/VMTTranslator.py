@@ -28,24 +28,27 @@ class Parser:
         Retrieve all commands from the source file(s);
         and its arguments.
         """
+        translator = Translator(self.target)
         for file_ in self.files:
             try:
                 fp = open(file_, 'rt')
                 for line in fp.readlines():
                     if line[:2] in ['\n', '//']:
                         continue
-                    command = line.strip('\n')
-                    command_type = self.command_type(command)
+                    line_rstrip = line.rstrip('\n')
+                    arg_1 = ''
+                    arg_2 = ''
+                    command_type = self.get_command_type(line_rstrip)
                     if command_type != 'C_RETURN':
-                        arg_1 = self.get_argument_1(command)
-                    if command_type in ['C_PUSH', 'C_POP', 'C_FUNCTION', 'C_CALL']:
-                        arg_2 = self.get_argument_2(command)
-                    else:
-                        arg_2 = ''
+                        arg_1 = self.get_argument_1(line_rstrip)
+                    if command_type in ['C_PUSH', 'C_POP', 
+                                        'C_FUNCTION', 'C_CALL']:
+                        arg_2 = self.get_argument_2(line_rstrip)
+                    print(arg_1, arg_2)
             finally:
                 fp.close()
 
-    def command_type(self, command: str) -> str:
+    def get_command_type(self, command: str) -> str:
         """
         Return command type based on the command received
         """
@@ -74,22 +77,6 @@ class Parser:
         argument = command.split()[-1]
         return int(argument)
 
-    def writePushPop(self, command):
-        action = command.split()[0]
-        arg_1 = self.get_argument_1(command)
-        arg_2 = self.get_argument_2(command)
-        
-        if action == 'push' and arg_1 == 'constant':
-            self.outfp.write(f'@{arg_2}\n')
-            self.outfp.write(f'D=A\n')
-            self.outfp.write(f'D=A\n')
-            self.outfp.write(f'@SP\n')
-            self.outfp.write(f'A=M\n')
-            self.outfp.write(f'M=D\n')
-            self.outfp.write(f'@SP\n')
-            self.outfp.write(f'M=M+1\n')
-
-
     def __enter__(self):
         self.files = []
         if os.path.isdir(self.source):
@@ -111,6 +98,47 @@ class Parser:
     def __exit__(self, exc_type, exc_value, traceback):
         self.target.close()
         print('Target closed succesfully')
+
+
+class Translator:
+
+    def __init__(self, fp):
+        self.fp = fp
+
+
+    def remove_new_line(self, line: str) -> str :
+        return line.strip('\n')
+
+    def translate_and_write(self, line):
+        command_type = self.get_command_type(line.rstrip('\n'))
+        print(command_type)
+
+    def temp():
+        command = translator.remove_new_line(line)
+        command_type = translator.get_command_type(command)
+        if command_type != 'C_RETURN':
+            arg_1 = self.translator.get_argument_1(command)
+        if command_type in ['C_PUSH', 'C_POP', 'C_FUNCTION', 'C_CALL']:
+            arg_2 = self.get_argument_2(command)
+        else:
+            arg_2 = ''
+
+    def writePushPop(self, command):
+        action = command.split()[0]
+        arg_1 = self.get_argument_1(command)
+        arg_2 = self.get_argument_2(command)
+        
+        if action == 'push' and arg_1 == 'constant':
+            self.outfp.write(f'@{arg_2}\n')
+            self.outfp.write(f'D=A\n')
+            self.outfp.write(f'D=A\n')
+            self.outfp.write(f'@SP\n')
+            self.outfp.write(f'A=M\n')
+            self.outfp.write(f'M=D\n')
+            self.outfp.write(f'@SP\n')
+            self.outfp.write(f'M=M+1\n')
+
+
 
 
 if __name__ == '__main__':
