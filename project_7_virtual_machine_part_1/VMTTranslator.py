@@ -9,8 +9,9 @@ def main():
     <file.vm> -> <file.asm>
     """
     if len(sys.argv) != 2:
-        print('Incorrent number of arguments (1 required).')
-        print('usage: python3 VMTranslator <input_file.vm>/<input_folder>')
+        print('Translate .vm files into assembly instruction')
+        print('Incorrent number of arguments (1 required).\n')
+        print('\tusage: python3 VMTranslator <input_file.vm>/<input_folder>\n')
         sys.exit(1)
 
     with Parser(sys.argv[1]) as vmtranslator:
