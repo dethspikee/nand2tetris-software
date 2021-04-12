@@ -15,7 +15,7 @@ def main():
         sys.exit(1)
 
     with Parser(sys.argv[1]) as vmtranslator:
-        vmtranslator.parse2()
+        vmtranslator.parse()
          
 
 class Parser:
@@ -23,30 +23,27 @@ class Parser:
     def __init__(self, source):
         self.source = source
 
-    def parse2(self):
-        for file_ in self.files:
-            print(file_)
-
     def parse(self):
         """
-        Retrieve all commands from the source file;
-        and store them in the 'commands' list
+        Retrieve all commands from the source file(s);
+        and its arguments.
         """
-        for line in self.fp.readlines():
-            if line[:2] in ['\n', '//']:
-                continue
-            command = line.rstrip('\n');
-            command_type = self.command_type(command)
-            if command_type != 'C_RETURN':
-                arg_1 = self.get_argument_1(command)
-            if command_type in ['C_PUSH', 'C_POP', 'C_FUNCTION', 'C_CALL']:
-                arg_2 = self.get_argument_2(command)
-            else:
-                arg_2 = ''
-            
-            if command_type == ('C_PUSH' or 'C_POP'):
-                self.writePushPop(command)
-
+        for file_ in self.files:
+            try:
+                fp = open(file_, 'rt')
+                for line in fp.readlines():
+                    if line[:2] in ['\n', '//']:
+                        continue
+                    command = line.strip('\n')
+                    command_type = self.command_type(command)
+                    if command_type != 'C_RETURN':
+                        arg_1 = self.get_argument_1(command)
+                    if command_type in ['C_PUSH', 'C_POP', 'C_FUNCTION', 'C_CALL']:
+                        arg_2 = self.get_argument_2(command)
+                    else:
+                        arg_2 = ''
+            finally:
+                fp.close()
 
     def command_type(self, command: str) -> str:
         """
