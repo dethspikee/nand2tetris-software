@@ -96,8 +96,9 @@ class Parser:
         return self
 
     def __exit__(self, exc_type, exc_value, traceback):
-        self.target.close()
-        print('Target closed succesfully')
+        if exc_value is None:
+            self.target.close()
+            print('.asm file created succesfully')
 
 
 class Translator:
@@ -134,6 +135,8 @@ class Translator:
             self.fp.write('M=D\n')
             self.fp.write('@SP\n')
             self.fp.write('M=M+1\n')
+        elif command == 'eq':
+            pass
 
     def remove_new_line(self, line: str) -> str :
         return line.strip('\n')
