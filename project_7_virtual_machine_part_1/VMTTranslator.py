@@ -141,16 +141,6 @@ class Translator:
     def translate_and_write(self, line):
         command_type = self.get_command_type(line.rstrip('\n'))
 
-    def temp():
-        command = translator.remove_new_line(line)
-        command_type = translator.get_command_type(command)
-        if command_type != 'C_RETURN':
-            arg_1 = self.translator.get_argument_1(command)
-        if command_type in ['C_PUSH', 'C_POP', 'C_FUNCTION', 'C_CALL']:
-            arg_2 = self.get_argument_2(command)
-        else:
-            arg_2 = ''
-
     def writePushPop(self, command):
         action = command.split()[0]
         arg_1 = self.get_argument_1(command)
