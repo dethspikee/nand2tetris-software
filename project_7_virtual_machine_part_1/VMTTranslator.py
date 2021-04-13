@@ -44,7 +44,7 @@ class Parser:
                     if command_type in ['C_PUSH', 'C_POP', 
                                         'C_FUNCTION', 'C_CALL']:
                         arg_2 = self.get_argument_2(line_rstrip)
-                    print(arg_1, arg_2)
+                    translator.translate(command_type, arg_1, arg_2)
             finally:
                 fp.close()
 
@@ -105,13 +105,26 @@ class Translator:
     def __init__(self, fp):
         self.fp = fp
 
+    def translate(self, command_type, arg_1, arg_2):
+        if command_type in ['C_PUSH', 'C_POP']:
+            self.write_arithmetic(command_type, arg_1, arg_2)
+
+    def write_arithmetic(self, command_type, segment, index):
+        if segment == 'constant' and command_type == 'C_PUSH':
+            self.fp.write(f'@{index}\n')
+            self.fp.write('D=A\n')
+            self.fp.write('@SP\n')
+            self.fp.write('A=M\n')
+            self.fp.write('M=D\n')
+            self.fp.write('@SP\n')
+            self.fp.write('M=M+1\n')
+
 
     def remove_new_line(self, line: str) -> str :
         return line.strip('\n')
 
     def translate_and_write(self, line):
         command_type = self.get_command_type(line.rstrip('\n'))
-        print(command_type)
 
     def temp():
         command = translator.remove_new_line(line)
