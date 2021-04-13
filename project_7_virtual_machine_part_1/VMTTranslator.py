@@ -106,10 +106,12 @@ class Translator:
         self.fp = fp
 
     def translate(self, command_type, arg_1, arg_2):
-        if command_type in ['C_PUSH', 'C_POP']:
-            self.write_arithmetic(command_type, arg_1, arg_2)
+        if command_type == 'C_ARITHMETIC':
+            self.write_arithmetic(arg_1)
+        elif command_type in ['C_PUSH', 'C_POP']:
+            self.write_push_pop(command_type, arg_1, arg_2)
 
-    def write_arithmetic(self, command_type, segment, index):
+    def write_push_pop(self, command_type, segment, index):
         if segment == 'constant' and command_type == 'C_PUSH':
             self.fp.write(f'@{index}\n')
             self.fp.write('D=A\n')
@@ -119,6 +121,19 @@ class Translator:
             self.fp.write('@SP\n')
             self.fp.write('M=M+1\n')
 
+    def write_arithmetic(self, command):
+        if command == 'add':
+            self.fp.write('@SP\n')
+            self.fp.write('AM=M-1\n')
+            self.fp.write('D=M\n')
+            self.fp.write('@SP\n')
+            self.fp.write('AM=M-1\n')
+            self.fp.write('D=D+M\n')
+            self.fp.write('@SP\n')
+            self.fp.write('A=M\n')
+            self.fp.write('M=D\n')
+            self.fp.write('@SP\n')
+            self.fp.write('M=M+1\n')
 
     def remove_new_line(self, line: str) -> str :
         return line.strip('\n')
