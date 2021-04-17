@@ -11,7 +11,7 @@ def main():
     if len(sys.argv) != 2:
         print('Translate .vm files into assembly instruction')
         print('Incorrent number of arguments (1 required).\n')
-        print('\tusage: python3 VMTranslator <input_file.vm>/<input_folder>\n')
+        print('usage: python3 VMTranslator <input_file.vm>/<input_folder>\n')
         sys.exit(1)
 
     with Parser(sys.argv[1]) as vmtranslator:
@@ -58,6 +58,7 @@ class Parser:
                 'neg': 'C_ARITHMETIC',
                 'eq': 'C_ARITHMETIC',
                 'gt': 'C_ARITHMETIC',
+                'lt': 'C_ARITHMETIC',
                 'push': 'C_PUSH',
                 'pop': 'C_POP',
                 }
@@ -197,6 +198,32 @@ class Translator:
             self.fp.write('@END\n')
             self.fp.write('0;JMP\n')
             self.fp.write('(NOTGREATER)\n')
+            self.fp.write('@SP\n')
+            self.fp.write('A=M\n')
+            self.fp.write('M=0\n')
+            self.fp.write('@END\n')
+            self.fp.write('0;JMP\n')
+            self.fp.write('(END)\n')
+            self.fp.write('@SP\n')
+            self.fp.write('M=M+1\n')
+        elif command == 'lt':
+            self.fp.write('@SP\n')
+            self.fp.write('AM=M-1\n')
+            self.fp.write('D=M\n')
+            self.fp.write('@SP\n')
+            self.fp.write('AM=M-1\n')
+            self.fp.write('MD=M-D\n')
+            self.fp.write('@SMALLER\n')
+            self.fp.write('D;JLT\n')
+            self.fp.write('@NOTSMALLER\n')
+            self.fp.write('D;JMP\n')
+            self.fp.write('(SMALLER)\n')
+            self.fp.write('@SP\n')
+            self.fp.write('A=M\n')
+            self.fp.write('M=-1\n')
+            self.fp.write('@END\n')
+            self.fp.write('0;JMP\n')
+            self.fp.write('(NOTSMALLER)\n')
             self.fp.write('@SP\n')
             self.fp.write('A=M\n')
             self.fp.write('M=0\n')
