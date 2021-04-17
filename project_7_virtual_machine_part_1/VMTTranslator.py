@@ -61,6 +61,7 @@ class Parser:
                 'lt': 'C_ARITHMETIC',
                 'and': 'C_ARITHMETIC',
                 'or': 'C_ARITHMETIC',
+                'not': 'C_ARITHMETIC',
                 'push': 'C_PUSH',
                 'pop': 'C_POP',
                 }
@@ -250,6 +251,12 @@ class Translator:
             self.fp.write('@SP\n')
             self.fp.write('AM=M-1\n')
             self.fp.write('M=M|D\n')
+            self.fp.write('@SP\n')
+            self.fp.write('M=M+1\n')
+        elif command == 'not':
+            self.fp.write('@SP\n')
+            self.fp.write('AM=M-1\n')
+            self.fp.write('M=!M\n')
             self.fp.write('@SP\n')
             self.fp.write('M=M+1\n')
 
