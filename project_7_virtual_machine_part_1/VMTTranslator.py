@@ -59,6 +59,7 @@ class Parser:
                 'eq': 'C_ARITHMETIC',
                 'gt': 'C_ARITHMETIC',
                 'lt': 'C_ARITHMETIC',
+                'and': 'C_ARITHMETIC',
                 'push': 'C_PUSH',
                 'pop': 'C_POP',
                 }
@@ -232,8 +233,15 @@ class Translator:
             self.fp.write('(END)\n')
             self.fp.write('@SP\n')
             self.fp.write('M=M+1\n')
-
-
+        elif command == 'and':
+            self.fp.write('@SP\n')
+            self.fp.write('AM=M-1\n')
+            self.fp.write('D=M\n')
+            self.fp.write('@SP\n')
+            self.fp.write('AM=M-1\n')
+            self.fp.write('M=M&D\n')
+            self.fp.write('@SP\n')
+            self.fp.write('M=M+1\n')
 
 
 if __name__ == '__main__':
