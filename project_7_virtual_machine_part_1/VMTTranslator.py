@@ -172,26 +172,7 @@ class Translator:
             self.fp.write('@SP\n')
             self.fp.write('M=M+1\n')
 
-    def remove_new_line(self, line: str) -> str :
-        return line.strip('\n')
 
-    def translate_and_write(self, line):
-        command_type = self.get_command_type(line.rstrip('\n'))
-
-    def writePushPop(self, command):
-        action = command.split()[0]
-        arg_1 = self.get_argument_1(command)
-        arg_2 = self.get_argument_2(command)
-        
-        if action == 'push' and arg_1 == 'constant':
-            self.outfp.write(f'@{arg_2}\n')
-            self.outfp.write(f'D=A\n')
-            self.outfp.write(f'D=A\n')
-            self.outfp.write(f'@SP\n')
-            self.outfp.write(f'A=M\n')
-            self.outfp.write(f'M=D\n')
-            self.outfp.write(f'@SP\n')
-            self.outfp.write(f'M=M+1\n')
 
 if __name__ == '__main__':
     main()
