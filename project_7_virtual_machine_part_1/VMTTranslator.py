@@ -57,6 +57,7 @@ class Parser:
                 'sub': 'C_ARITHMETIC',
                 'neg': 'C_ARITHMETIC',
                 'eq': 'C_ARITHMETIC',
+                'gt': 'C_ARITHMETIC',
                 'push': 'C_PUSH',
                 'pop': 'C_POP',
                 }
@@ -178,6 +179,33 @@ class Translator:
             self.fp.write('(END)\n')
             self.fp.write('@SP\n')
             self.fp.write('M=M+1\n')
+        elif command == 'gt':
+            self.fp.write('@SP\n')
+            self.fp.write('AM=M-1\n')
+            self.fp.write('D=M\n')
+            self.fp.write('@SP\n')
+            self.fp.write('AM=M-1\n')
+            self.fp.write('MD=M-D\n')
+            self.fp.write('@GREATER\n')
+            self.fp.write('D;JGT\n')
+            self.fp.write('@NOTGREATER\n')
+            self.fp.write('D;JMP\n')
+            self.fp.write('(GREATER)\n')
+            self.fp.write('@SP\n')
+            self.fp.write('A=M\n')
+            self.fp.write('M=-1\n')
+            self.fp.write('@END\n')
+            self.fp.write('0;JMP\n')
+            self.fp.write('(NOTGREATER)\n')
+            self.fp.write('@SP\n')
+            self.fp.write('A=M\n')
+            self.fp.write('M=0\n')
+            self.fp.write('@END\n')
+            self.fp.write('0;JMP\n')
+            self.fp.write('(END)\n')
+            self.fp.write('@SP\n')
+            self.fp.write('M=M+1\n')
+
 
 
 
