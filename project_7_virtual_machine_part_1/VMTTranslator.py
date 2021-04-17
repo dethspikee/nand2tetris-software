@@ -135,8 +135,15 @@ class Translator:
             self.fp.write('M=D\n')
             self.fp.write('@SP\n')
             self.fp.write('M=M+1\n')
-        elif command == 'eq':
-            pass
+        elif command == 'sub':
+            self.fp.write('@SP\n')
+            self.fp.write('AM=M-1\n')
+            self.fp.write('D=M\n')
+            self.fp.write('@SP\n')
+            self.fp.write('AM=M-1\n')
+            self.fp.write('MD=M-D\n')
+            self.fp.write('@SP\n')
+            self.fp.write('M=M+1\n')
 
     def remove_new_line(self, line: str) -> str :
         return line.strip('\n')
