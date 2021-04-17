@@ -55,6 +55,7 @@ class Parser:
         commands = {
                 'add': 'C_ARITHMETIC',
                 'sub': 'C_ARITHMETIC',
+                'neg': 'C_ARITHMETIC',
                 'eq': 'C_ARITHMETIC',
                 'push': 'C_PUSH',
                 'pop': 'C_POP',
@@ -143,6 +144,12 @@ class Translator:
             self.fp.write('@SP\n')
             self.fp.write('AM=M-1\n')
             self.fp.write('MD=M-D\n')
+            self.fp.write('@SP\n')
+            self.fp.write('M=M+1\n')
+        elif command == 'neg':
+            self.fp.write('@SP\n')
+            self.fp.write('AM=M-1\n')
+            self.fp.write('M=-M\n')
             self.fp.write('@SP\n')
             self.fp.write('M=M+1\n')
         elif command == 'eq':
