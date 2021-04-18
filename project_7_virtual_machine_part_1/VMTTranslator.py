@@ -112,7 +112,7 @@ class Translator:
 
     def __init__(self, fp):
         """
-        Initialize Translator instance. Recieve file pointer to output file.
+        Initialize Translator instance. Receive file pointer to output file.
         """
         self.fp = fp
 
