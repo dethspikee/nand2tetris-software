@@ -50,7 +50,7 @@ class Parser:
 
     def get_command_type(self, command: str) -> str:
         """
-        Return command type based on the command received
+        Return command type based on the command received.
         """
         commands = {
                 'add': 'C_ARITHMETIC',
@@ -71,7 +71,7 @@ class Parser:
     def get_argument_1(self, command: str) -> str:
         """
         Return first argument of the command received;
-        return command itself if C_ARITHMETIC
+        return command itself if C_ARITHMETIC.
         """
         argument = command.split()
         return argument[0] if len(argument) == 1 else argument[1]
@@ -79,7 +79,7 @@ class Parser:
     def get_argument_2(self, command: str) -> int:
         """
         Return second argument of the command received;
-        converted to int
+        converted to int.
         """
         argument = command.split()[-1]
         return int(argument)
@@ -111,15 +111,24 @@ class Parser:
 class Translator:
 
     def __init__(self, fp):
+        """
+        Initialize Translator instance. Recieve file pointer to output file.
+        """
         self.fp = fp
 
-    def translate(self, command_type, arg_1, arg_2, counter):
+    def translate(self, command_type, arg_1, arg_2, counter) -> None:
+        """
+        Delegate translation of commands based on their command type.
+        """
         if command_type == 'C_ARITHMETIC':
             self.write_arithmetic(arg_1, counter)
         elif command_type in ['C_PUSH', 'C_POP']:
             self.write_push_pop(command_type, arg_1, arg_2)
 
-    def write_push_pop(self, command_type, segment, index):
+    def write_push_pop(self, command_type, segment, index) -> None:
+        """
+        Translate commands for PUSH / POP operations.
+        """
         if segment == 'constant' and command_type == 'C_PUSH':
             self.fp.write(f'@{index}\n')
             self.fp.write('D=A\n')
@@ -129,7 +138,13 @@ class Translator:
             self.fp.write('@SP\n')
             self.fp.write('M=M+1\n')
 
-    def handle_lt_gt_eq(self, command, counter):
+    def handle_lt_gt_eq(self, command, counter) -> None:
+        """
+        Handle lt/gt/eq operations. All three commands are
+        translated in a similar way. Use f-strings to create
+        loops, variables based on the operaton. Counter var provides
+        meaning of implementing unique translations.
+        """
         action_if_true = ''
         action_if_false = ''
         jump_condition = ''
@@ -174,7 +189,10 @@ class Translator:
 
 
 
-    def write_arithmetic(self, command, counter):
+    def write_arithmetic(self, command, counter) -> None:
+        """
+        Translate arithmetic commands.
+        """
         if command == 'add':
             self.fp.write('@SP\n')
             self.fp.write('AM=M-1\n')
@@ -228,7 +246,6 @@ class Translator:
             self.fp.write('M=M+1\n')
         else:
             self.handle_lt_gt_eq(command, counter)
-
 
 
 if __name__ == '__main__':
