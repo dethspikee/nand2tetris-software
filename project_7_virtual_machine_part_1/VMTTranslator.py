@@ -129,6 +129,51 @@ class Translator:
             self.fp.write('@SP\n')
             self.fp.write('M=M+1\n')
 
+    def handle_lt_gt_eq(self, command, counter):
+        action_if_true = ''
+        action_if_false = ''
+        jump_condition = ''
+        if command == 'eq':
+            action_if_true = 'EQUAL'
+            action_if_false = 'NOTEQUAL'
+            jump_condition = 'JEQ';
+        elif command == 'gt':
+            action_if_true = 'GREATER'
+            action_if_false = 'NOTGREATER'
+            jump_condition = 'JGT';
+        elif command == 'lt':
+            action_if_true = 'SMALLER'
+            action_if_false = 'NOTSMALLER'
+            jump_condition = 'JLT';
+
+        self.fp.write('@SP\n')
+        self.fp.write('AM=M-1\n')
+        self.fp.write('D=M\n')
+        self.fp.write('@SP\n')
+        self.fp.write('AM=M-1\n')
+        self.fp.write('MD=M-D\n')
+        self.fp.write(f'@{action_if_true}{counter}\n')
+        self.fp.write(f'D;{jump_condition}\n')
+        self.fp.write(f'@{action_if_false}{counter}\n')
+        self.fp.write('0;JMP\n')
+        self.fp.write(f'({action_if_true}{counter})\n')
+        self.fp.write('@SP\n')
+        self.fp.write('A=M\n')
+        self.fp.write('M=-1\n')
+        self.fp.write(f'@END{counter}\n')
+        self.fp.write('0;JMP\n')
+        self.fp.write(f'({action_if_false}{counter})\n')
+        self.fp.write('@SP\n')
+        self.fp.write('A=M\n')
+        self.fp.write('M=0\n')
+        self.fp.write(f'@END{counter}\n')
+        self.fp.write('0;JMP\n')
+        self.fp.write(f'(END{counter})\n')
+        self.fp.write('@SP\n')
+        self.fp.write('M=M+1\n')
+
+
+
     def write_arithmetic(self, command, counter):
         if command == 'add':
             self.fp.write('@SP\n')
@@ -157,84 +202,6 @@ class Translator:
             self.fp.write('M=-M\n')
             self.fp.write('@SP\n')
             self.fp.write('M=M+1\n')
-        elif command == 'eq':
-            self.fp.write('@SP\n')
-            self.fp.write('AM=M-1\n')
-            self.fp.write('D=M\n')
-            self.fp.write('@SP\n')
-            self.fp.write('AM=M-1\n')
-            self.fp.write('MD=M-D\n')
-            self.fp.write(f'@EQUAL{counter}\n')
-            self.fp.write('D;JEQ\n')
-            self.fp.write(f'@NOTEQUAL{counter}\n')
-            self.fp.write('D;JNE\n')
-            self.fp.write(f'(EQUAL{counter})\n')
-            self.fp.write('@SP\n')
-            self.fp.write('A=M\n')
-            self.fp.write('M=-1\n')
-            self.fp.write(f'@END{counter}\n')
-            self.fp.write('0;JMP\n')
-            self.fp.write(f'(NOTEQUAL{counter})\n')
-            self.fp.write('@SP\n')
-            self.fp.write('A=M\n')
-            self.fp.write('M=0\n')
-            self.fp.write(f'@END{counter}\n')
-            self.fp.write('0;JMP\n')
-            self.fp.write(f'(END{counter})\n')
-            self.fp.write('@SP\n')
-            self.fp.write('M=M+1\n')
-        elif command == 'gt':
-            self.fp.write('@SP\n')
-            self.fp.write('AM=M-1\n')
-            self.fp.write('D=M\n')
-            self.fp.write('@SP\n')
-            self.fp.write('AM=M-1\n')
-            self.fp.write('MD=M-D\n')
-            self.fp.write(f'@GREATER{counter}\n')
-            self.fp.write('D;JGT\n')
-            self.fp.write(f'@NOTGREATER{counter}\n')
-            self.fp.write('D;JMP\n')
-            self.fp.write(f'(GREATER{counter})\n')
-            self.fp.write('@SP\n')
-            self.fp.write('A=M\n')
-            self.fp.write('M=-1\n')
-            self.fp.write(f'@END{counter}\n')
-            self.fp.write('0;JMP\n')
-            self.fp.write(f'(NOTGREATER{counter})\n')
-            self.fp.write('@SP\n')
-            self.fp.write('A=M\n')
-            self.fp.write('M=0\n')
-            self.fp.write(f'@END{counter}\n')
-            self.fp.write('0;JMP\n')
-            self.fp.write(f'(END{counter})\n')
-            self.fp.write('@SP\n')
-            self.fp.write('M=M+1\n')
-        elif command == 'lt':
-            self.fp.write('@SP\n')
-            self.fp.write('AM=M-1\n')
-            self.fp.write('D=M\n')
-            self.fp.write('@SP\n')
-            self.fp.write('AM=M-1\n')
-            self.fp.write('MD=M-D\n')
-            self.fp.write(f'@SMALLER{counter}\n')
-            self.fp.write('D;JLT\n')
-            self.fp.write(f'@NOTSMALLER{counter}\n')
-            self.fp.write('D;JMP\n')
-            self.fp.write(f'(SMALLER{counter})\n')
-            self.fp.write('@SP\n')
-            self.fp.write('A=M\n')
-            self.fp.write('M=-1\n')
-            self.fp.write(f'@END{counter}\n')
-            self.fp.write('0;JMP\n')
-            self.fp.write(f'(NOTSMALLER{counter})\n')
-            self.fp.write('@SP\n')
-            self.fp.write('A=M\n')
-            self.fp.write('M=0\n')
-            self.fp.write(f'@END{counter}\n')
-            self.fp.write('0;JMP\n')
-            self.fp.write(f'(END{counter})\n')
-            self.fp.write('@SP\n')
-            self.fp.write('M=M+1\n')
         elif command == 'and':
             self.fp.write('@SP\n')
             self.fp.write('AM=M-1\n')
@@ -259,6 +226,9 @@ class Translator:
             self.fp.write('M=!M\n')
             self.fp.write('@SP\n')
             self.fp.write('M=M+1\n')
+        else:
+            self.handle_lt_gt_eq(command, counter)
+
 
 
 if __name__ == '__main__':
