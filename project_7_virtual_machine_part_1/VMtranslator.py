@@ -138,6 +138,19 @@ class Translator:
             self.fp.write('M=D\n')
             self.fp.write('@SP\n')
             self.fp.write('M=M+1\n')
+        elif command_type == 'C_POP' and segment == 'local':
+            self.fp.write('@LCL\n')
+            self.fp.write('D=M\n')
+            self.fp.write('@0\n')
+            self.fp.write('D=D+A\n')
+            self.fp.write('@ADDRESS\n')
+            self.fp.write('M=D\n')
+            self.fp.write('@SP\n')
+            self.fp.write('AM=M-1\n')
+            self.fp.write('D=M\n')
+            self.fp.write('@ADDRESS\n')
+            self.fp.write('A=M\n')
+            self.fp.write('M=D\n')
 
     def handle_lt_gt_eq(self, command, counter) -> None:
         """
