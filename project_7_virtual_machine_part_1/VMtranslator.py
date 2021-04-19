@@ -137,9 +137,11 @@ class Translator:
             self.fp.write('M=D\n')
             self.fp.write('@SP\n')
             self.fp.write('M=M+1\n')
-        elif command_type == 'C_PUSH' and segment in {'local', 'argument'}:
+        elif (command_type == 'C_PUSH' and
+              segment in {'local', 'argument', 'this', 'that'}):
             self.handle_lcl_arg_this_that_push(segment, index);
-        elif command_type == 'C_POP' and segment in {'local', 'argument'}:
+        elif (command_type == 'C_POP' and
+              segment in {'local', 'argument', 'this', 'that'}):
             self.handle_lcl_arg_this_that_pop(segment, index);
 
     def handle_lcl_arg_this_that_push(self, segment, index):
@@ -148,6 +150,10 @@ class Translator:
             segment_pointer = 'LCL'
         elif segment == 'argument':
             segment_pointer = 'ARG'
+        elif segment == 'this':
+            segment_pointer = 'THIS'
+        elif segment == 'that':
+            segment_pointer = 'THAT'
 
         self.fp.write(f'@{segment_pointer}\n')
         self.fp.write('D=M\n')
@@ -167,6 +173,10 @@ class Translator:
             segment_pointer = 'LCL'
         elif segment == 'argument':
             segment_pointer = 'ARG'
+        elif segment == 'this':
+            segment_pointer = 'THIS'
+        elif segment == 'that':
+            segment_pointer = 'THAT'
 
         self.fp.write(f'@{segment_pointer}\n')
         self.fp.write('D=M\n')
