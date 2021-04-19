@@ -129,6 +129,7 @@ class Translator:
         """
         Translate commands for PUSH / POP operations.
         """
+        print(command_type, segment, index)
         if segment == 'constant' and command_type == 'C_PUSH':
             self.fp.write(f'@{index}\n')
             self.fp.write('D=A\n')
