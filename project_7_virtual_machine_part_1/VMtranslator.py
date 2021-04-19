@@ -41,8 +41,8 @@ class Parser:
                     command_type = self.get_command_type(line_rstrip)
                     if command_type != 'C_RETURN':
                         arg_1 = self.get_argument_1(line_rstrip)
-                    if command_type in ['C_PUSH', 'C_POP', 
-                                        'C_FUNCTION', 'C_CALL']:
+                    if command_type in {'C_PUSH', 'C_POP', 
+                                        'C_FUNCTION', 'C_CALL'}:
                         arg_2 = self.get_argument_2(line_rstrip)
                     translator.translate(command_type, arg_1, arg_2, counter)
             finally:
@@ -122,7 +122,7 @@ class Translator:
         """
         if command_type == 'C_ARITHMETIC':
             self.write_arithmetic(arg_1, counter)
-        elif command_type in ['C_PUSH', 'C_POP']:
+        elif command_type in {'C_PUSH', 'C_POP'}:
             self.write_push_pop(command_type, arg_1, arg_2)
 
     def write_push_pop(self, command_type, segment, index) -> None:
