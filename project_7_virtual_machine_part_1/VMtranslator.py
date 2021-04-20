@@ -21,12 +21,15 @@ def main():
 class Parser:
 
     def __init__(self, source):
+        """
+        Initialize Parser instances with path to file/directory.
+        """
         self.source = source
 
     def parse(self):
         """
         Retrieve all commands from the source file(s);
-        and its arguments.
+        and all arguments.
         """
         translator = Translator(self.target)
         for file_ in self.files:
@@ -127,7 +130,7 @@ class Translator:
 
     def write_push_pop(self, command_type, segment, index) -> None:
         """
-        Translate commands for PUSH / POP operations.
+        Translate commands for PUSH/POP operations.
         """
         if segment == 'constant' and command_type == 'C_PUSH':
             self.fp.write(f'@{index}\n')
@@ -148,7 +151,11 @@ class Translator:
         elif command_type == 'C_POP' and segment == 'temp':
             self.handle_temp_pop(segment, index)
 
-    def handle_lcl_arg_this_that_push(self, segment, index):
+    def handle_lcl_arg_this_that_push(self, segment, index) -> None:
+        """
+        Handle translation of push commands for
+        LOCAL/ARGUMENT/THIS/THAT memory segments.
+        """
         segment_pointer = ''
         if segment == 'local':
             segment_pointer = 'LCL'
@@ -170,7 +177,11 @@ class Translator:
         self.fp.write('@SP\n')
         self.fp.write('M=M+1\n')
 
-    def handle_lcl_arg_this_that_pop(self, segment, index):
+    def handle_lcl_arg_this_that_pop(self, segment, index) -> None:
+        """
+        Handle translation of pop commands for
+        LOCAL/ARGUMENT/THIS/THAT memory segments.
+        """
         segment_pointer = ''
         if segment == 'local':
             segment_pointer = 'LCL'
@@ -194,7 +205,11 @@ class Translator:
         self.fp.write('A=M\n')
         self.fp.write('M=D\n')
 
-    def handle_temp_push(self, segment, index):
+    def handle_temp_push(self, segment, index) -> None:
+        """
+        Handle translation of push commands for
+        TEMP memory segment.
+        """
         segment_pointer = 5
         self.fp.write(f'@{segment_pointer}\n')
         self.fp.write('D=A\n')
@@ -209,7 +224,11 @@ class Translator:
         self.fp.write('AM=M+1\n')
 
 
-    def handle_temp_pop(self, segment, index):
+    def handle_temp_pop(self, segment, index) -> None:
+        """
+        Handle translation of pop commands for
+        TEMP memory segment.
+        """
         segment_pointer = 5
         self.fp.write(f'@{segment_pointer}\n')
         self.fp.write('D=A\n')
@@ -228,9 +247,8 @@ class Translator:
     def handle_lt_gt_eq(self, command, counter) -> None:
         """
         Handle lt/gt/eq operations. All three commands are
-        translated in a similar way. Use f-strings to create
-        loops, variables based on the operaton. Counter var provides
-        meaning of implementing unique translations.
+        translated in a similar way. Use f-strings and counter
+        to create unique loops and variables.
         """
         action_if_true = ''
         action_if_false = ''
@@ -278,7 +296,7 @@ class Translator:
 
     def write_arithmetic(self, command, counter) -> None:
         """
-        Translate arithmetic commands.
+        Translate arithmetic and logical commands.
         """
         if command == 'add':
             self.fp.write('@SP\n')
