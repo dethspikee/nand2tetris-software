@@ -140,6 +140,10 @@ class Translator:
             self.fp.write('M=D\n')
             self.fp.write('@SP\n')
             self.fp.write('M=M+1\n')
+        elif command_type == 'C_PUSH' and segment == 'pointer':
+            self.handle_pointer_push(segment, index)
+        elif command_type == 'C_POP' and segment == 'pointer':
+            self.handle_pointer_pop(segment, index)
         elif (command_type == 'C_PUSH' and
               segment in {'local', 'argument', 'this', 'that'}):
             self.handle_lcl_arg_this_that_push(segment, index);
@@ -243,6 +247,39 @@ class Translator:
         self.fp.write('A=M\n')
         self.fp.write('M=D\n')
 
+    def handle_pointer_push(self, segment, index) -> None:
+        """
+        Handle push operation for pointer segment.
+        """
+        segment_pointer = ''
+        if index == 0:
+            segment_pointer = 'THIS'
+        elif index == 1:
+            segment_pointer = 'THAT'
+
+        self.fp.write(f'@{segment_pointer}\n')
+        self.fp.write('D=M\n')
+        self.fp.write('@SP\n')
+        self.fp.write('A=M\n')
+        self.fp.write('M=D\n')
+        self.fp.write('@SP\n')
+        self.fp.write('M=M+1\n')
+
+    def handle_pointer_pop(self, segment, index) -> None:
+        """
+        Handle pop operation for pointer segment.
+        """
+        segment_pointer = ''
+        if index == 0:
+            segment_pointer = 'THIS'
+        elif index == 1:
+            segment_pointer = 'THAT'
+
+        self.fp.write('@SP\n')
+        self.fp.write('AM=M-1\n')
+        self.fp.write('D=M\n')
+        self.fp.write(f'@{segment_pointer}\n')
+        self.fp.write('M=D\n')
 
     def handle_lt_gt_eq(self, command, counter) -> None:
         """
