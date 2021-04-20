@@ -127,32 +127,32 @@ class Translator:
         if command_type == 'C_ARITHMETIC':
             self.write_arithmetic(arg_1, counter)
         elif command_type in {'C_PUSH', 'C_POP'}:
-            self.write_push_pop(command_type, arg_1, arg_2, counter, filename)
+            self.write_push_pop(command_type, arg_1, arg_2, filename)
 
-    def write_push_pop(self, command_type, segment, index, counter,  filename) -> None:
+    def write_push_pop(self, command_type, segment, index, filename) -> None:
         """
         Translate commands for PUSH/POP operations.
         """
-        if segment == 'constant':
-            self.handle_constant_push(segment, index)
-        elif command_type == 'C_PUSH' and segment == 'static':
-            self.handle_static_push(segment, index, filename)
-        elif command_type == 'C_POP' and segment == 'static':
-            self.handle_static_pop(segment, index, filename)
-        elif command_type == 'C_PUSH' and segment == 'pointer':
-            self.handle_pointer_push(segment, index)
-        elif command_type == 'C_POP' and segment == 'pointer':
-            self.handle_pointer_pop(segment, index)
-        elif (command_type == 'C_PUSH' and
-              segment in {'local', 'argument', 'this', 'that'}):
-            self.handle_lcl_arg_this_that_push(segment, index);
-        elif (command_type == 'C_POP' and
-              segment in {'local', 'argument', 'this', 'that'}):
-            self.handle_lcl_arg_this_that_pop(segment, index);
-        elif command_type == 'C_PUSH' and segment == 'temp':
-            self.handle_temp_push(segment, index);
-        elif command_type == 'C_POP' and segment == 'temp':
-            self.handle_temp_pop(segment, index)
+        if command_type == 'C_PUSH':
+            if segment in {'local', 'argument', 'this', 'that'}:
+                self.handle_lcl_arg_this_that_push(segment, index);
+            elif segment == 'constant':
+                self.handle_constant_push(segment, index)
+            elif segment == 'pointer':
+                self.handle_pointer_push(segment, index)
+            elif segment == 'static':
+                self.handle_static_push(segment, index, filename)
+            elif segment == 'temp':
+                self.handle_temp_push(segment, index);
+        elif command_type == 'C_POP':
+            if segment in {'local', 'argument', 'this', 'that'}:
+                self.handle_lcl_arg_this_that_pop(segment, index);
+            elif segment == 'pointer':
+                self.handle_pointer_pop(segment, index)
+            elif segment == 'static':
+                self.handle_static_pop(segment, index, filename)
+            elif segment == 'temp':
+                self.handle_temp_pop(segment, index)
 
     def handle_constant_push(self, segment, index) -> None:
         """
