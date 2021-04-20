@@ -1,3 +1,3 @@
 add_permission:
-				chmod +x VMTranslator
+	chmod +x VMTranslator
 
