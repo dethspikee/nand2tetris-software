@@ -297,7 +297,10 @@ class Translator:
         Handle STATIC segment push command.
         """
         filename, _ = filename.split('.')
+        if '/' in filename:
+            filename = filename.replace('/', '.')
         variable_name = f'{filename}.{index}'
+
         self.fp.write(f'@{variable_name}\n')
         self.fp.write('D=M\n')
         self.fp.write('@SP\n')
@@ -311,7 +314,10 @@ class Translator:
         Handle STATIC segment pop command.
         """
         filename, _ = filename.split('.')
+        if '/' in filename:
+            filename = filename.replace('/', '.')
         variable_name = f'{filename}.{index}'
+
         self.fp.write('@SP\n')
         self.fp.write('AM=M-1\n')
         self.fp.write('D=M\n')
