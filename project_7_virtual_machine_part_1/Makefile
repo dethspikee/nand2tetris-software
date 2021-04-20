@@ -1,3 +1,3 @@
-delete_asm:
-		rm *.asm
+add_permission:
+				chmod +x VMTranslator
 
