@@ -108,8 +108,8 @@ class Parser:
 
     def __exit__(self, exc_type, exc_value, traceback):
         if exc_value is None:
-            self.target.close()
             print('.asm file created succesfully')
+        self.target.close()
 
 
 class Translator:
