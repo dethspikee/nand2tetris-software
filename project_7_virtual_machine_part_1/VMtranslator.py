@@ -47,7 +47,8 @@ class Parser:
                     if command_type in {'C_PUSH', 'C_POP', 
                                         'C_FUNCTION', 'C_CALL'}:
                         arg_2 = self.get_argument_2(line_rstrip)
-                    translator.translate(command_type, arg_1, arg_2, counter)
+                    translator.translate(command_type, arg_1, arg_2, counter,
+                                         self.source)
             finally:
                 fp.close()
 
@@ -119,27 +120,25 @@ class Translator:
         """
         self.fp = fp
 
-    def translate(self, command_type, arg_1, arg_2, counter) -> None:
+    def translate(self, command_type, arg_1, arg_2, counter, filename) -> None:
         """
         Delegate translation of commands based on their command type.
         """
         if command_type == 'C_ARITHMETIC':
             self.write_arithmetic(arg_1, counter)
         elif command_type in {'C_PUSH', 'C_POP'}:
-            self.write_push_pop(command_type, arg_1, arg_2)
+            self.write_push_pop(command_type, arg_1, arg_2, counter, filename)
 
-    def write_push_pop(self, command_type, segment, index) -> None:
+    def write_push_pop(self, command_type, segment, index, counter,  filename) -> None:
         """
         Translate commands for PUSH/POP operations.
         """
-        if segment == 'constant' and command_type == 'C_PUSH':
-            self.fp.write(f'@{index}\n')
-            self.fp.write('D=A\n')
-            self.fp.write('@SP\n')
-            self.fp.write('A=M\n')
-            self.fp.write('M=D\n')
-            self.fp.write('@SP\n')
-            self.fp.write('M=M+1\n')
+        if segment == 'constant':
+            self.handle_constant_push(segment, index)
+        elif command_type == 'C_PUSH' and segment == 'static':
+            self.handle_static_push(segment, index, filename)
+        elif command_type == 'C_POP' and segment == 'static':
+            self.handle_static_pop(segment, index, filename)
         elif command_type == 'C_PUSH' and segment == 'pointer':
             self.handle_pointer_push(segment, index)
         elif command_type == 'C_POP' and segment == 'pointer':
@@ -154,6 +153,18 @@ class Translator:
             self.handle_temp_push(segment, index);
         elif command_type == 'C_POP' and segment == 'temp':
             self.handle_temp_pop(segment, index)
+
+    def handle_constant_push(self, segment, index) -> None:
+        """
+        Handle PUSH commands for constant segment.
+        """
+        self.fp.write(f'@{index}\n')
+        self.fp.write('D=A\n')
+        self.fp.write('@SP\n')
+        self.fp.write('A=M\n')
+        self.fp.write('M=D\n')
+        self.fp.write('@SP\n')
+        self.fp.write('M=M+1\n')
 
     def handle_lcl_arg_this_that_push(self, segment, index) -> None:
         """
@@ -279,6 +290,32 @@ class Translator:
         self.fp.write('AM=M-1\n')
         self.fp.write('D=M\n')
         self.fp.write(f'@{segment_pointer}\n')
+        self.fp.write('M=D\n')
+
+    def handle_static_push(self, segment, index, filename) -> None:
+        """
+        Handle STATIC segment push command.
+        """
+        filename, _ = filename.split('.')
+        variable_name = f'{filename}.{index}'
+        self.fp.write(f'@{variable_name}\n')
+        self.fp.write('D=M\n')
+        self.fp.write('@SP\n')
+        self.fp.write('A=M\n')
+        self.fp.write('M=D\n')
+        self.fp.write('@SP\n')
+        self.fp.write('AM=M+1\n')
+
+    def handle_static_pop(self, segment, index, filename) -> None:
+        """
+        Handle STATIC segment pop command.
+        """
+        filename, _ = filename.split('.')
+        variable_name = f'{filename}.{index}'
+        self.fp.write('@SP\n')
+        self.fp.write('AM=M-1\n')
+        self.fp.write('D=M\n')
+        self.fp.write(f'@{variable_name}\n')
         self.fp.write('M=D\n')
 
     def handle_lt_gt_eq(self, command, counter) -> None:
