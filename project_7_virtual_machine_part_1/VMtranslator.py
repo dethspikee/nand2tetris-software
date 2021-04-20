@@ -143,6 +143,10 @@ class Translator:
         elif (command_type == 'C_POP' and
               segment in {'local', 'argument', 'this', 'that'}):
             self.handle_lcl_arg_this_that_pop(segment, index);
+        elif command_type == 'C_PUSH' and segment == 'temp':
+            self.handle_temp_push(segment, index);
+        elif command_type == 'C_POP' and segment == 'temp':
+            self.handle_temp_pop(segment, index)
 
     def handle_lcl_arg_this_that_push(self, segment, index):
         segment_pointer = ''
@@ -164,7 +168,6 @@ class Translator:
         self.fp.write('A=M\n')
         self.fp.write('M=D\n')
         self.fp.write('@SP\n')
-        self.fp.write('A=M\n')
         self.fp.write('M=M+1\n')
 
     def handle_lcl_arg_this_that_pop(self, segment, index):
@@ -190,6 +193,37 @@ class Translator:
         self.fp.write('@ADDRESS\n')
         self.fp.write('A=M\n')
         self.fp.write('M=D\n')
+
+    def handle_temp_push(self, segment, index):
+        segment_pointer = 5
+        self.fp.write(f'@{segment_pointer}\n')
+        self.fp.write('D=A\n')
+        self.fp.write(f'@{index}\n')
+        self.fp.write('D=D+A\n')
+        self.fp.write('A=D\n')
+        self.fp.write('D=M\n')
+        self.fp.write('@SP\n')
+        self.fp.write('A=M\n')
+        self.fp.write('M=D\n')
+        self.fp.write('@SP\n')
+        self.fp.write('AM=M+1\n')
+
+
+    def handle_temp_pop(self, segment, index):
+        segment_pointer = 5
+        self.fp.write(f'@{segment_pointer}\n')
+        self.fp.write('D=A\n')
+        self.fp.write(f'@{index}\n')
+        self.fp.write('D=D+A\n')
+        self.fp.write('@ADDRESS\n')
+        self.fp.write('M=D\n')
+        self.fp.write('@SP\n')
+        self.fp.write('AM=M-1\n')
+        self.fp.write('D=M\n')
+        self.fp.write('@ADDRESS\n')
+        self.fp.write('A=M\n')
+        self.fp.write('M=D\n')
+
 
     def handle_lt_gt_eq(self, command, counter) -> None:
         """
