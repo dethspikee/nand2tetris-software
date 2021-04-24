@@ -93,6 +93,7 @@ class Parser:
         if os.path.isdir(self.source):
             for file_ in os.listdir(self.source):
                 if '.vm' in file_:
+                    file_ = os.path.join(self.source, file_)
                     self.files.append(file_)
             filepath = os.path.join('.', self.source, f'{self.source}.asm')
             self.target = open(f'{filepath}', 'wt')
