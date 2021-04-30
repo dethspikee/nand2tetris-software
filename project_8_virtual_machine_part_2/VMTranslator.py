@@ -49,7 +49,6 @@ class Parser:
                         arg_2 = self.get_argument_2(line_rstrip)
                     translator.translate(command_type, arg_1, arg_2, counter,
                                          self.source)
-                    print(command_type, arg_1, arg_2)
             finally:
                 fp.close()
 
@@ -137,6 +136,10 @@ class Translator:
             self.write_arithmetic(arg_1, counter)
         elif command_type in {'C_PUSH', 'C_POP'}:
             self.write_push_pop(command_type, arg_1, arg_2, filename)
+        elif command_type == 'C_LABEL':
+            self.write_label(command_type, arg_1)
+        elif command_type == 'C_IF':
+            self.write_if(command_type, arg_1)
 
     def write_push_pop(self, command_type, segment, index, filename) -> None:
         """
@@ -162,6 +165,24 @@ class Translator:
                 self.handle_static_pop(segment, index, filename)
             elif segment == 'temp':
                 self.handle_temp_pop(segment, index)
+
+    def write_label(self, command_type, arg_1):
+        """
+        Writes assembly code that effects
+        the label command.
+        """
+        self.fp.write(f'({arg_1})\n')
+
+    def write_if(self, command_type, arg_1):
+        """
+        Writes assembly code that effects
+        the if-goto command.
+        """
+        self.fp.write('@SP\n')
+        self.fp.write('AM=M-1\n')
+        self.fp.write('D=M\n')
+        self.fp.write(f'@{arg_1}\n')
+        self.fp.write('D;JNE\n')
 
     def handle_constant_push(self, segment, index) -> None:
         """
