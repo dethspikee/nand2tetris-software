@@ -140,6 +140,8 @@ class Translator:
             self.write_label(command_type, arg_1)
         elif command_type == 'C_IF':
             self.write_if(command_type, arg_1)
+        elif command_type == 'C_GOTO':
+            self.write_goto(command_type, arg_1)
 
     def write_push_pop(self, command_type, segment, index, filename) -> None:
         """
@@ -183,6 +185,14 @@ class Translator:
         self.fp.write('D=M\n')
         self.fp.write(f'@{arg_1}\n')
         self.fp.write('D;JNE\n')
+
+    def write_goto(self, command_type, arg_1):
+        """
+        Writes assembly code that effects
+        the goto command.
+        """
+        self.fp.write(f'@{arg_1}\n')
+        self.fp.write('0;JMP\n')
 
     def handle_constant_push(self, segment, index) -> None:
         """
