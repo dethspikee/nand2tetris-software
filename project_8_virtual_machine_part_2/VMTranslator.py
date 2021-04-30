@@ -168,14 +168,14 @@ class Translator:
             elif segment == 'temp':
                 self.handle_temp_pop(segment, index)
 
-    def write_label(self, command_type, arg_1):
+    def write_label(self, command_type, arg_1) -> None:
         """
         Writes assembly code that effects
         the label command.
         """
         self.fp.write(f'({arg_1})\n')
 
-    def write_if(self, command_type, arg_1):
+    def write_if(self, command_type, arg_1) -> None:
         """
         Writes assembly code that effects
         the if-goto command.
@@ -186,7 +186,7 @@ class Translator:
         self.fp.write(f'@{arg_1}\n')
         self.fp.write('D;JNE\n')
 
-    def write_goto(self, command_type, arg_1):
+    def write_goto(self, command_type, arg_1) -> None:
         """
         Writes assembly code that effects
         the goto command.
