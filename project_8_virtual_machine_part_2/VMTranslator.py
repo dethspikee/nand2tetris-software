@@ -25,6 +25,7 @@ class Parser:
         Initialize Parser instances with path to file/directory.
         """
         self.source = source
+        self.is_dir = None
 
     def parse(self):
         """
@@ -32,11 +33,15 @@ class Parser:
         and all arguments.
         """
         translator = Translator(self.target)
+        if len(self.files) > 1:
+            translator.write_init()
         for file_ in self.files:
             try:
+                counter = 0
+                translator.current_file = file_
                 fp = open(file_, 'rt')
-                for counter, line in enumerate(fp.readlines()):
-                    if line[:2] in ['\n', '//']:
+                for line in fp.readlines():
+                    if line[:2] in {'\n', '//'}:
                         continue
                     line_rstrip = line.rstrip('\n')
                     arg_1 = ''
@@ -49,6 +54,7 @@ class Parser:
                         arg_2 = self.get_argument_2(line_rstrip)
                     translator.translate(command_type, arg_1, arg_2, counter,
                                          self.source)
+                    counter += 1
             finally:
                 fp.close()
 
@@ -84,7 +90,10 @@ class Parser:
         return command itself if C_ARITHMETIC.
         """
         argument = command.split()
-        return argument[0] if len(argument) == 1 else argument[1]
+        if argument[0] in {'add', 'sub', 'lt', 'eq', 'gt', 'not'}:
+            return argument[0]
+        else:
+            return argument[1]
 
     def get_argument_2(self, command: str) -> int:
         """
@@ -98,6 +107,7 @@ class Parser:
     def __enter__(self):
         self.files = []
         if os.path.isdir(self.source):
+            self.is_dir = True
             for file_ in os.listdir(self.source):
                 if '.vm' in file_:
                     file_ = os.path.join(self.source, file_)
@@ -127,6 +137,7 @@ class Translator:
         Initialize Translator instance. Receive file pointer to output file.
         """
         self.fp = fp
+        self.current_file = None
 
     def translate(self, command_type, arg_1, arg_2, counter, filename) -> None:
         """
@@ -135,15 +146,209 @@ class Translator:
         if command_type == 'C_ARITHMETIC':
             self.write_arithmetic(arg_1, counter)
         elif command_type in {'C_PUSH', 'C_POP'}:
-            self.write_push_pop(command_type, arg_1, arg_2, filename)
+            self.write_push_pop(command_type, arg_1, arg_2, counter, filename)
         elif command_type == 'C_LABEL':
-            self.write_label(command_type, arg_1)
+            self.write_label(command_type, arg_1, filename)
         elif command_type == 'C_IF':
-            self.write_if(command_type, arg_1)
+            self.write_if(command_type, arg_1, filename)
         elif command_type == 'C_GOTO':
-            self.write_goto(command_type, arg_1)
+            self.write_goto(command_type, arg_1, filename)
+        elif command_type == 'C_CALL':
+            self.write_call(arg_1, arg_2, counter)
+        elif command_type == 'C_FUNCTION':
+            self.write_function(arg_1, arg_2)
+        elif command_type == 'C_RETURN':
+            self.write_return()
 
-    def write_push_pop(self, command_type, segment, index, filename) -> None:
+    def write_init(self) -> None:
+        """
+        Change later.
+        """
+        self.fp.write('@256\n')
+        self.fp.write('D=A\n')
+        self.fp.write('@SP\n')
+        self.fp.write('M=D\n')
+        self.write_call('Sys.init', 0, -1)
+
+    def write_label(self, command_type, arg_1, filename) -> None:
+        """
+        Writes assembly code that effects
+        the label command.
+        """
+        filename = filename.split('.')[0]
+        if '/' in filename:
+            filename = filename.split('/')[-1]
+        label = f'({filename}${arg_1})\n'
+        self.fp.write(label)
+
+    def write_if(self, command_type, arg_1, filename) -> None:
+        """
+        Writes assembly code that effects
+        the if-goto command.
+        """
+        filename = filename.split('.')[0]
+        if '/' in filename:
+            filename = filename.split('/')[-1]
+        label = f'@{filename}${arg_1}\n'
+        self.fp.write('@SP\n')
+        self.fp.write('AM=M-1\n')
+        self.fp.write('D=M\n')
+        self.fp.write(label)
+        self.fp.write('D;JNE\n')
+
+    def write_goto(self, command_type, arg_1, filename) -> None:
+        """
+        Writes assembly code that effects
+        the goto command.
+        """
+        filename = filename.split('.')[0]
+        if '/' in filename:
+            filename = filename.split('/')[-1]
+        label = f'@{filename}${arg_1}\n'
+        self.fp.write(label)
+        self.fp.write('0;JMP\n')
+
+    def write_call(self, function_name, num_args, counter) -> None:
+        """
+        Write later.
+        """
+        # generate return label
+        return_label = function_name.split('.')[0]
+        return_label = f'{return_label}$ret.{counter + 1}'
+
+        # push return address onto the stack
+        self.fp.write(f'@{return_label}\n')
+        self.fp.write('D=A\n')
+        self.fp.write('@SP\n')
+        self.fp.write('A=M\n')
+        self.fp.write('M=D\n')
+        self.fp.write('@SP\n')
+        self.fp.write('M=M+1\n')
+        # save LCL of the caller
+        self.fp.write('@LCL\n')
+        self.fp.write('D=M\n')
+        self.fp.write('@SP\n')
+        self.fp.write('A=M\n')
+        self.fp.write('M=D\n')
+        self.fp.write('@SP\n')
+        self.fp.write('M=M+1\n')
+        # save ARG of the caller
+        self.fp.write('@ARG\n')
+        self.fp.write('D=M\n')
+        self.fp.write('@SP\n')
+        self.fp.write('A=M\n')
+        self.fp.write('M=D\n')
+        self.fp.write('@SP\n')
+        self.fp.write('M=M+1\n')
+        # save THIS of the caller
+        self.fp.write('@THIS\n')
+        self.fp.write('D=M\n')
+        self.fp.write('@SP\n')
+        self.fp.write('A=M\n')
+        self.fp.write('M=D\n')
+        self.fp.write('@SP\n')
+        self.fp.write('M=M+1\n')
+        # save THAT of the caller
+        self.fp.write('@THAT\n')
+        self.fp.write('D=M\n')
+        self.fp.write('@SP\n')
+        self.fp.write('A=M\n')
+        self.fp.write('M=D\n')
+        self.fp.write('@SP\n')
+        self.fp.write('M=M+1\n')
+        # reposition ARG
+        self.fp.write('@SP\n')
+        self.fp.write('D=M\n')
+        self.fp.write(f'@{5 + num_args}\n')
+        self.fp.write('D=D-A\n')
+        self.fp.write('@ARG\n')
+        self.fp.write('M=D\n')
+        # reposition LCL
+        self.fp.write('@SP\n')
+        self.fp.write('D=M\n')
+        self.fp.write(f'@LCL\n')
+        self.fp.write('M=D\n')
+        # transfer control to the called function
+        self.fp.write(f'@{function_name}\n')
+        self.fp.write('0;JMP\n')
+        # declare label for the return addresss
+        self.fp.write(f'({return_label})\n')
+
+    def write_function(self, arg_1, arg_2) -> None:
+        """
+        Change later
+        """
+        self.fp.write(f'({arg_1})\n')
+        while arg_2 > 0:
+            self.handle_constant_push(0)
+            arg_2 -= 1
+
+    def write_return(self) -> None:
+        """
+        Change later.
+        """
+        # copy LCL to endFrame
+        self.fp.write('@LCL\n')
+        self.fp.write('D=M\n')
+        self.fp.write('@endFrame\n')
+        self.fp.write('M=D\n')
+        # get the return address; store it in retAddr
+        self.fp.write('@5\n')
+        self.fp.write('A=D-A\n')
+        self.fp.write('D=M\n')
+        self.fp.write('@retAddr\n')
+        self.fp.write('M=D\n')
+        # reposition the return value for the caller; *ARG = pop()
+        self.fp.write('@SP\n')
+        self.fp.write('AM=M-1\n')
+        self.fp.write('D=M\n')
+        self.fp.write('@ARG\n')
+        self.fp.write('A=M\n')
+        self.fp.write('M=D\n')
+        # reposition SP of the caller; SP = ARG + 1
+        self.fp.write('@ARG\n')
+        self.fp.write('A=M\n')
+        self.fp.write('D=A+1\n')
+        self.fp.write('@SP\n')
+        self.fp.write('M=D\n')
+        # restore THAT segment of the caller
+        self.fp.write('@endFrame\n')
+        self.fp.write('D=M\n')
+        self.fp.write('@1\n')
+        self.fp.write('A=D-A\n')
+        self.fp.write('D=M\n')
+        self.fp.write('@THAT\n')
+        self.fp.write('M=D\n')
+        # restore THIS segment of the caller
+        self.fp.write('@endFrame\n')
+        self.fp.write('D=M\n')
+        self.fp.write('@2\n')
+        self.fp.write('A=D-A\n')
+        self.fp.write('D=M\n')
+        self.fp.write('@THIS\n')
+        self.fp.write('M=D\n')
+        # restore ARG segment of the caller
+        self.fp.write('@endFrame\n')
+        self.fp.write('D=M\n')
+        self.fp.write('@3\n')
+        self.fp.write('A=D-A\n')
+        self.fp.write('D=M\n')
+        self.fp.write('@ARG\n')
+        self.fp.write('M=D\n')
+        # restore LCL segment of the caller
+        self.fp.write('@endFrame\n')
+        self.fp.write('D=M\n')
+        self.fp.write('@4\n')
+        self.fp.write('A=D-A\n')
+        self.fp.write('D=M\n')
+        self.fp.write('@LCL\n')
+        self.fp.write('M=D\n')
+        # return to retAddr
+        self.fp.write('@retAddr\n')
+        self.fp.write('A=M\n')
+        self.fp.write('0;JMP\n')
+
+    def write_push_pop(self, command_type, segment, index, counter, filename) -> None:
         """
         Translate commands for PUSH/POP operations.
         """
@@ -151,11 +356,11 @@ class Translator:
             if segment in {'local', 'argument', 'this', 'that'}:
                 self.handle_lcl_arg_this_that_push(segment, index);
             elif segment == 'constant':
-                self.handle_constant_push(segment, index)
+                self.handle_constant_push(index)
             elif segment == 'pointer':
                 self.handle_pointer_push(segment, index)
             elif segment == 'static':
-                self.handle_static_push(segment, index, filename)
+                self.handle_static_push(segment, index, counter, filename)
             elif segment == 'temp':
                 self.handle_temp_push(segment, index);
         elif command_type == 'C_POP':
@@ -164,37 +369,11 @@ class Translator:
             elif segment == 'pointer':
                 self.handle_pointer_pop(segment, index)
             elif segment == 'static':
-                self.handle_static_pop(segment, index, filename)
+                self.handle_static_pop(segment, index, counter, filename)
             elif segment == 'temp':
                 self.handle_temp_pop(segment, index)
 
-    def write_label(self, command_type, arg_1) -> None:
-        """
-        Writes assembly code that effects
-        the label command.
-        """
-        self.fp.write(f'({arg_1})\n')
-
-    def write_if(self, command_type, arg_1) -> None:
-        """
-        Writes assembly code that effects
-        the if-goto command.
-        """
-        self.fp.write('@SP\n')
-        self.fp.write('AM=M-1\n')
-        self.fp.write('D=M\n')
-        self.fp.write(f'@{arg_1}\n')
-        self.fp.write('D;JNE\n')
-
-    def write_goto(self, command_type, arg_1) -> None:
-        """
-        Writes assembly code that effects
-        the goto command.
-        """
-        self.fp.write(f'@{arg_1}\n')
-        self.fp.write('0;JMP\n')
-
-    def handle_constant_push(self, segment, index) -> None:
+    def handle_constant_push(self, index) -> None:
         """
         Handle PUSH commands for constant segment.
         """
@@ -332,13 +511,14 @@ class Translator:
         self.fp.write(f'@{segment_pointer}\n')
         self.fp.write('M=D\n')
 
-    def handle_static_push(self, segment, index, filename) -> None:
+    def handle_static_push(self, segment, index, counter, filename) -> None:
         """
         Handle STATIC segment push command.
         """
-        filename, _ = filename.split('.')
-        if '/' in filename:
-            filename = filename.replace('/', '.')
+        if '/' in self.current_file:
+            filename = self.current_file.split('/')[-1]
+        else:
+            filename = filename.split('.')[0]
         variable_name = f'{filename}.{index}'
 
         self.fp.write(f'@{variable_name}\n')
@@ -349,13 +529,14 @@ class Translator:
         self.fp.write('@SP\n')
         self.fp.write('AM=M+1\n')
 
-    def handle_static_pop(self, segment, index, filename) -> None:
+    def handle_static_pop(self, segment, index, counter, filename) -> None:
         """
         Handle STATIC segment pop command.
         """
-        filename, _ = filename.split('.')
-        if '/' in filename:
-            filename = filename.replace('/', '.')
+        if '/' in self.current_file:
+            filename = self.current_file.split('/')[-1]
+        else:
+            filename = filename.split('.')[0]
         variable_name = f'{filename}.{index}'
 
         self.fp.write('@SP\n')
