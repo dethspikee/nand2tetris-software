@@ -1,0 +1,284 @@
+class TicTacToe {
+  // location on the screen
+  field int x, y, length, i, currentSymbol;
+  field Array places;
+  
+  constructor TicTacToe new() {
+    let length = 9;
+    let i = 0;
+    let places = Array.new(length);
+    let currentSymbol = 0;
+
+    while (i < length) {
+      let places[i] = 0;
+      let i = i + 1;
+    }
+    
+    return this;
+  }
+
+  method void draw() {
+    var int i;
+    let i = 0;
+
+    do Screen.setColor(true);
+    do Screen.drawLine(220, 50, 220, 180);
+    do Screen.drawLine(280, 50, 280, 180);
+    do Screen.drawLine(170, 90, 330, 90);
+    do Screen.drawLine(170, 140, 330, 140);
+
+    while (i < length) {
+      if (places[i] = 0) {
+        do fillRows(i + 1);
+      } else {
+        do drawSymbol(i + 1, places[i]);
+      }
+      let i = i + 1;
+    }
+
+    return;
+  }
+
+  method void fillRows(int i) {
+    var int x, y;
+
+    if (i = 1) {
+      let x = 6;
+      let y = 24;
+    }
+
+    if (i = 2) {
+      let x = 6;
+      let y = 31;
+    }
+
+    if (i = 3) {
+      let x = 6;
+      let y = 38;
+    }
+
+    if (i = 4) {
+      let x = 10;
+      let y = 24;
+    }
+
+    if (i = 5) {
+      let x = 10;
+      let y = 31;
+    }
+
+    if (i = 6) {
+      let x = 10;
+      let y = 38;
+    }
+
+    if (i = 7) {
+      let x = 14;
+      let y = 24;
+    }
+
+    if (i = 8) {
+      let x = 14;
+      let y = 31;
+    }
+
+    if (i = 9) {
+      let x = 14;
+      let y = 38;
+    }
+
+    do Output.moveCursor(x, y);
+    do Output.printInt(i);
+
+    return;
+  }
+
+  method void drawSymbol(int position, int symbol) {
+    var int x, y, x2, y2, r;
+    let r = 10;
+
+    if (symbol = 79) {
+      if (position = 1) {
+        let x = 195;
+        let y = 70;
+      }
+
+      if (position = 2) {
+        let x = 250;
+        let y = 70;
+      }
+
+      if (position = 3) {
+        let x = 305;
+        let y = 70;
+      }
+
+      if (position = 4) {
+        let x = 195;
+        let y = 115;
+      }
+
+      if (position = 5) {
+        let x = 250;
+        let y = 115;
+      }
+
+      if (position = 6) {
+        let x = 305;
+        let y = 115;
+      }
+
+      if (position = 7) {
+        let x = 195;
+        let y = 160;
+      }
+
+      if (position = 8) {
+        let x = 250;
+        let y = 160;
+      }
+
+      if (position = 9) {
+        let x = 305;
+        let y = 160;
+      }
+
+      do Screen.drawCircle(x, y, r);
+    }
+
+
+    if (symbol = 88) {
+      if (position = 1) {
+        let x = 185;
+        let y = 60;
+        let x2 = 200;
+        let y2 = 75;
+        do Screen.drawLine(x, y, x2, y2);
+        let x = 200;
+        let y = 60;
+        let x2 = 185;
+        let y2 = 75;
+        do Screen.drawLine(x, y, x2, y2);
+      }
+
+      if (position = 2) {
+        let x = 245;
+        let y = 60;
+        let x2 = 260;
+        let y2 = 75;
+        do Screen.drawLine(x, y, x2, y2);
+        let x = 260;
+        let y = 60;
+        let x2 = 245;
+        let y2 = 75;
+        do Screen.drawLine(x, y, x2, y2);
+      }
+
+      if (position = 3) {
+        let x = 300;
+        let y = 60;
+        let x2 = 315;
+        let y2 = 75;
+        do Screen.drawLine(x, y, x2, y2);
+        let x = 315;
+        let y = 60;
+        let x2 = 300;
+        let y2 = 75;
+        do Screen.drawLine(x, y, x2, y2);
+      }
+
+      if (position = 4) {
+        let x = 185;
+        let y = 105;
+        let x2 = 200;
+        let y2 = 120;
+        do Screen.drawLine(x, y, x2, y2);
+        let x = 200;
+        let y = 105;
+        let x2 = 185;
+        let y2 = 120;
+        do Screen.drawLine(x, y, x2, y2);
+      }
+
+      if (position = 5) {
+        let x = 245;
+        let y = 105;
+        let x2 = 260;
+        let y2 = 120;
+        do Screen.drawLine(x, y, x2, y2);
+        let x = 260;
+        let y = 105;
+        let x2 = 245;
+        let y2 = 120;
+        do Screen.drawLine(x, y, x2, y2);
+      }
+
+      if (position = 6) {
+        let x = 300;
+        let y = 105;
+        let x2 = 315;
+        let y2 = 120;
+        do Screen.drawLine(x, y, x2, y2);
+        let x = 315;
+        let y = 105;
+        let x2 = 300;
+        let y2 = 120;
+        do Screen.drawLine(x, y, x2, y2);
+      }
+
+      if (position = 7) {
+        let x = 185;
+        let y = 155;
+        let x2 = 200;
+        let y2 = 170;
+        do Screen.drawLine(x, y, x2, y2);
+        let x = 200;
+        let y = 155;
+        let x2 = 185;
+        let y2 = 170;
+        do Screen.drawLine(x, y, x2, y2);
+      }
+
+      if (position = 8) {
+        let x = 245;
+        let y = 155;
+        let x2 = 260;
+        let y2 = 170;
+        do Screen.drawLine(x, y, x2, y2);
+        let x = 260;
+        let y = 155;
+        let x2 = 245;
+        let y2 = 170;
+        do Screen.drawLine(x, y, x2, y2);
+      }
+
+      if (position = 9) {
+        let x = 300;
+        let y = 155;
+        let x2 = 315;
+        let y2 = 170;
+        do Screen.drawLine(x, y, x2, y2);
+        let x = 315;
+        let y = 155;
+        let x2 = 300;
+        let y2 = 170;
+        do Screen.drawLine(x, y, x2, y2);
+      }
+    }
+    return;
+  }
+
+  method void setPosition(int i) {
+    let places[i-1] = currentSymbol;
+    return;
+  }
+
+  method void setCurrentSymbol(int symbol) {
+    let currentSymbol = symbol;
+    return;
+  }
+
+  method int getCurrentSymbol() {
+    return currentSymbol;
+  }
+}
