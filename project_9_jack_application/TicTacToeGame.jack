@@ -8,23 +8,44 @@ class TicTacToeGame {
 
   method int ask() {
     var int i;
+    do Output.moveCursor(1, 0);
+    if (game.getCurrentSymbol() = 79) {
+      do Output.printString("Turn: 0");
+    } else {
+      do Output.printString("Turn: X");
+    }
     do Output.moveCursor(0, 0);
     let i = Keyboard.readInt("Enter your pick [1-9]: ");
     return i;
   }
 
   method boolean validInput(int input) {
-    if ((input > 0) & (input < 10)) {
-      return true;
-    } 
-    else {
-      return false;
-    }
-  }
+    var boolean valid;
 
-  method void dispose() {
-    do Memory.deAlloc(this);
-    return;
+    if ((input > 0) & (input < 10)) {
+      let valid = true;
+    } else {
+      do Output.moveCursor(0, 23);
+      do Output.printString("Invalid position.");
+      do Sys.wait(5000);
+      do Output.moveCursor(0, 23);
+      do Output.printString("                 ");
+      let valid = false;
+      return valid;
+    }
+
+    if (~(game.getPosition(input - 1) = 79) & ~(game.getPosition(input - 1) = 88)) {
+      let valid = true;
+    } else {
+      do Output.moveCursor(0, 23);
+      do Output.printString("Position taken.");
+      do Sys.wait(5000);
+      do Output.moveCursor(0, 23);
+      do Output.printString("               ");
+      let valid = false;
+      return valid;
+    }
+    return valid;
   }
 
   method void run() {
@@ -32,29 +53,48 @@ class TicTacToeGame {
     var int input;
     let exit = false;
 
-    do game.setCurrentSymbol(79);
+    do game.setStartingSymbol(); 
     do game.draw();
     while (~exit) {
       let input = ask();      
-      if (~validInput(input)) {
-        do Output.moveCursor(0, 23);
-        do Output.printString("Invalid position.");
-        do Sys.wait(5000);
-        do Output.moveCursor(0, 23);
-        do Output.printString("                 ");
-      } else {
+      if (validInput(input)) {
         do game.setPosition(input);
-        do Screen.clearScreen();
         do game.draw();
-      }
-      
-      if (game.getCurrentSymbol() = 88) {
-        do game.setCurrentSymbol(79);
-      } else {
-        do game.setCurrentSymbol(88);
-      }
-    } 
 
+        if (game.checkWinner()) {
+          do Screen.clearScreen();
+          do game.draw();
+          do Output.moveCursor(2, 28);
+          if (game.getCurrentSymbol() = 79) {
+            do Output.printString("Os win!");
+          } else {
+            do Output.printString("Xs win!");
+          }
+          let exit = true;
+          return;
+        }
+
+        if (game.checkDraw()) {
+          do Screen.clearScreen();
+          do game.draw();
+          do Output.moveCursor(2, 25);
+          do Output.printString("It's a draw!");
+          let exit = true;
+          return;
+        }
+
+        if (game.getCurrentSymbol() = 88) {
+          do game.setCurrentSymbol(79);
+        } else {
+          do game.setCurrentSymbol(88);
+        }
+      } 
+    }
+    return;
+  }
+ 
+  method void dispose() {
+    do Memory.deAlloc(this);
     return;
   }
 }
