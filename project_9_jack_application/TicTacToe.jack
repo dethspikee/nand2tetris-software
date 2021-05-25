@@ -1,5 +1,4 @@
 class TicTacToe {
-  // location on the screen
   field int x, y, length, i, currentSymbol, moveCounter;
   field Array places;
   
@@ -18,6 +17,7 @@ class TicTacToe {
     return this;
   }
 
+  // draw the initial board to the screen
   method void draw() {
     var int i;
     let i = 0;
@@ -40,6 +40,7 @@ class TicTacToe {
     return;
   }
 
+  // fill each square with a number
   method void fillRows(int i) {
     var int x, y;
 
@@ -94,6 +95,7 @@ class TicTacToe {
     return;
   }
 
+  // draw symbol (O/X) in the right position
   method void drawSymbol(int position, int symbol) {
     var int x, y, x2, y2, r;
     let r = 10;
@@ -305,6 +307,7 @@ class TicTacToe {
     return;
   }
 
+  // check for a draw
   method boolean checkDraw() {
     var boolean draw;
     let draw = false;
@@ -316,6 +319,7 @@ class TicTacToe {
     return draw;
   }
 
+  // check for a winner
   method boolean checkWinner() {
     var boolean winner;
     let winner = false;
@@ -363,6 +367,7 @@ class TicTacToe {
     return winner;
   }
 
+  // ask user for a starting symbol
   method void setStartingSymbol() {
     var int i;
     var boolean valid;
@@ -388,30 +393,38 @@ class TicTacToe {
     return;
   }
 
+  // set position on board for the symbol entered by user
   method void setPosition(int i) {
     let places[i-1] = currentSymbol;
     do increaseMoveCounter();
     return;
   }
 
+  // get position for the given symbol
   method int getPosition(int i) {
     return places[i];
   }
 
+  // set current symbol. At each stage of the game
+  // only one symbol can be active
   method void setCurrentSymbol(int symbol) {
     let currentSymbol = symbol;
     return;
   }
 
+ // get current symbol
   method int getCurrentSymbol() {
     return currentSymbol;
   }
 
+  // increase move counter by 1
+  // this is used to determine if there's a draw
   method void increaseMoveCounter() {
     let moveCounter = moveCounter + 1;
     return;
   }
 
+  // retrieve move counter value
   method int getMoveCounter() {
     return moveCounter;
   }

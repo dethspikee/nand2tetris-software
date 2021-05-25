@@ -6,6 +6,8 @@ class TicTacToeGame {
     return this;
   }
 
+  // display to the user whose turn it is
+  // and ask user to enter position number
   method int ask() {
     var int i;
     do Output.moveCursor(1, 0);
@@ -19,6 +21,7 @@ class TicTacToeGame {
     return i;
   }
 
+  // check if the input provided by the user is valid
   method boolean validInput(int input) {
     var boolean valid;
 
@@ -48,6 +51,7 @@ class TicTacToeGame {
     return valid;
   }
 
+  // run new game of TicTacToe
   method void run() {
     var boolean exit; 
     var int input;
@@ -93,6 +97,7 @@ class TicTacToeGame {
     return;
   }
  
+  // dispose the game
   method void dispose() {
     do Memory.deAlloc(this);
     return;

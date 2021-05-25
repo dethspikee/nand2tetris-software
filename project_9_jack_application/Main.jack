@@ -1,5 +1,6 @@
+/** Classic Tic Tac Toe game */
 class Main {
-  
+  /* Game's entrypoint */ 
   function void main() {
     var TicTacToeGame game;
     let game = TicTacToeGame.new();
