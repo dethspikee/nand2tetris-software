@@ -6,9 +6,7 @@ class TicTacToeGame {
     return this;
   }
 
-  // display to the user whose turn it is
-  // and ask user to enter position number
-  method int ask() {
+  method int get_move_from_player() {
     var int i;
     do Output.moveCursor(1, 0);
     if (game.getCurrentSymbol() = 79) {
@@ -60,7 +58,7 @@ class TicTacToeGame {
     do game.setStartingSymbol(); 
     do game.draw();
     while (~exit) {
-      let input = ask();      
+      let input = get_move_from_player();      
       if (validInput(input)) {
         do game.setPosition(input);
         do game.draw();
