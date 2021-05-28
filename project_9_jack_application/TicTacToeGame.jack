@@ -19,8 +19,7 @@ class TicTacToeGame {
     return i;
   }
 
-  // check if the input provided by the user is valid
-  method boolean validInput(int input) {
+  method boolean validate_input(int input) {
     var boolean valid;
 
     if ((input > 0) & (input < 10)) {
@@ -59,7 +58,7 @@ class TicTacToeGame {
     do game.draw();
     while (~exit) {
       let input = get_move_from_player();      
-      if (validInput(input)) {
+      if (validate_input(input)) {
         do game.setPosition(input);
         do game.draw();
 
