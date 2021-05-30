@@ -20,9 +20,11 @@ class JackTokenizer:
             if line.startswith(('//', '/**')):
                 continue
             stripped = line.strip('\t\n ')
-            if '//' in stripped:
+            try:
                 start_of_comment = stripped.index('//')
                 stripped = stripped[:start_of_comment]
+            except ValueError:
+                pass
             no_comments.append(stripped)
 
         joined = ''.join(no_comments)
