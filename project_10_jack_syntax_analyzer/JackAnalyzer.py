@@ -16,6 +16,10 @@ def main() -> None:
                          Directory with x number of jack files will produce
                          x number of xml files stored in the root directory.
     """
+    if (len(sys.argv) != 2):
+        print("Illegal number of arguments. (1 required)")
+        print("Path to .jack file or dir with .jack files required.")
+        sys.exit(2)
 
 
 if __name__ == '__main__':
