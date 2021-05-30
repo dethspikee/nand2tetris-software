@@ -4,7 +4,7 @@ class JackTokenizer:
         Opens the input .jack file and gets
         ready to tokenize it.
         """
-        self.fp = input_stream
+        self.fp = open(input_stream, 'rt')
 
     def has_more_tokens() -> bool:
         """
@@ -46,11 +46,3 @@ class JackTokenizer:
 
     def str_val() -> str:
         pass
-
-    def __enter__(self):
-        self.file_obj = open(self.fp, mode="rt")
-        return self
-
-    def __exit__(self, exc_type, exc_val, exc_tb):
-        if self.file_obj:
-            self.file_obj.close()
