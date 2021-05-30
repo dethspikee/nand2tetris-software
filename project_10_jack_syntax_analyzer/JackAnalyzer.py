@@ -1,9 +1,10 @@
 import sys
+import os
 
 
 def main() -> None:
     """
-    Entrypoint of the syntax analyzer.
+    Entrypoint of the syntax analyzer, expects input path.
     Uses two classes internally:
 
     JackTokenizer     :: responsible for retrieving all tokens
@@ -21,6 +22,17 @@ def main() -> None:
         print("Path to .jack file or dir with .jack files required.")
         sys.exit(2)
 
+    program_arg = sys.argv[1]
+    if os.path.isdir(program_arg):
+        jack_files = [
+            name
+            for name in os.listdir(program_arg)
+            if name.endswith(".jack")
+            and os.path.isfile(os.path.join(program_arg, name))
+        ]
+    elif program_arg.endswith(".jack"):
+        pass
 
-if __name__ == '__main__':
+
+if __name__ == "__main__":
     main()
