@@ -5,6 +5,36 @@ class JackTokenizer:
         ready to tokenize it.
         """
         self.fp = open(input_stream, 'rt')
+        self.tokens = []
+
+    def remove_comments(self) -> str:
+        """
+        Traverse through the input stream
+        and remove all the comments from it;
+        including the inline comments. Return
+        joined string that will be used by the
+        'get_tokens' method to retrieve all tokens.
+        """
+        no_comments = []
+        for line in self.fp:
+            if line.startswith(('//', '/**')):
+                continue
+            stripped = line.strip('\t\n ')
+            if '//' in stripped:
+                start_of_comment = stripped.index('//')
+                stripped = stripped[:start_of_comment]
+            no_comments.append(stripped)
+
+        joined = ''.join(no_comments)
+        return joined
+
+    def get_tokens(self) -> list:
+        """
+        Get tokens from the input stream.
+        """
+        pass
+                
+
 
     def has_more_tokens() -> bool:
         """
