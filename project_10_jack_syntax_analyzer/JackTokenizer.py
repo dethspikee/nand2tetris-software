@@ -4,7 +4,7 @@ class JackTokenizer:
         Opens the input .jack file and gets
         ready to tokenize it.
         """
-        self.fp = open(input_stream, 'rt')
+        self.fp = open(input_stream, "rt")
         self.tokens = []
 
     def remove_comments(self) -> str:
@@ -17,17 +17,17 @@ class JackTokenizer:
         """
         no_comments = []
         for line in self.fp:
-            if line.startswith(('//', '/**')):
+            if line.startswith(("//", "/**")):
                 continue
-            stripped = line.strip('\t\n ')
+            stripped = line.strip("\t\n ")
             try:
-                start_of_comment = stripped.index('//')
+                start_of_comment = stripped.index("//")
                 stripped = stripped[:start_of_comment]
             except ValueError:
                 pass
             no_comments.append(stripped)
 
-        joined = ''.join(no_comments)
+        joined = "".join(no_comments)
         return joined
 
     def get_tokens(self) -> list:
@@ -35,8 +35,6 @@ class JackTokenizer:
         Get tokens from the input stream.
         """
         pass
-                
-
 
     def has_more_tokens() -> bool:
         """
