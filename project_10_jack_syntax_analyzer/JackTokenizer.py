@@ -1,3 +1,6 @@
+from typing import Generator
+
+
 class JackTokenizer:
     """
     Class responsible for grouping characters from the
@@ -17,7 +20,7 @@ class JackTokenizer:
         ready to tokenize it.
         """
         self.fp = open(input_stream, "rt")
-        self.tokens = self.generate_tokens()
+        self.tokens = list(self.generate_tokens())
 
     def remove_comments(self) -> str:
         """
@@ -42,7 +45,7 @@ class JackTokenizer:
         joined = "".join(no_comments)
         return joined
 
-    def generate_tokens(self) -> list:
+    def generate_tokens(self) -> Generator[str, None, None]:
         """
         Generate tokens (tokenize) from the input
         stream. Return list of tokens.
@@ -57,8 +60,9 @@ class JackTokenizer:
         master_pat = re.compile("|".join([VAR, NUM, WS, TOKENS_CLASS]))
         text = self.remove_comments()
         scanner = master_pat.scanner(text)
-        tokens = [m.group() for m in iter(scanner.match, None)]
-        return tokens
+        for match in iter(scanner.match, None):
+            token = match.group()
+            yield token
 
     def has_more_tokens() -> bool:
         """
