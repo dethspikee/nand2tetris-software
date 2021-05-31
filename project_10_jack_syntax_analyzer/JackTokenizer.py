@@ -5,7 +5,7 @@ class JackTokenizer:
         ready to tokenize it.
         """
         self.fp = open(input_stream, "rt")
-        self.tokens = []
+        self.tokens = self.generate_tokens()
 
     def remove_comments(self) -> str:
         """
@@ -30,11 +30,23 @@ class JackTokenizer:
         joined = "".join(no_comments)
         return joined
 
-    def get_tokens(self) -> list:
+    def generate_tokens(self) -> list:
         """
-        Get tokens from the input stream.
+        Generate tokens (tokenize) from the input
+        stream. Return list of tokens.
         """
-        pass
+        import re
+
+        VAR = r"[a-zA-Z_][a-zA-Z_0-9]*"
+        NUM = r"\d+"
+        WS = r"\s+"
+        TOKENS_CLASS = r'[(+?.\-/\){},<>*:;="&|\[\]]'
+
+        master_pat = re.compile("|".join([VAR, NUM, WS, TOKENS_CLASS]))
+        text = self.remove_comments()
+        scanner = master_pat.scanner(text)
+        tokens = [m.group() for m in iter(scanner.match, None)]
+        return tokens
 
     def has_more_tokens() -> bool:
         """
