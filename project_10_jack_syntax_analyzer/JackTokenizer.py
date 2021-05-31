@@ -40,7 +40,7 @@ class JackTokenizer:
         VAR = r"[a-zA-Z_][a-zA-Z_0-9]*"
         NUM = r"\d+"
         WS = r"\s+"
-        TOKENS_CLASS = r'[(+?.\-/\){},<>*:;="&|\[\]]'
+        TOKENS_CLASS = r'[(+?.~\-/\){},<>*:;="&|\[\]]'
 
         master_pat = re.compile("|".join([VAR, NUM, WS, TOKENS_CLASS]))
         text = self.remove_comments()
