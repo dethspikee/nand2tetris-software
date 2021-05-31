@@ -47,7 +47,7 @@ class JackTokenizer:
 
     def generate_tokens(self) -> Generator[str, None, None]:
         """
-        Generate tokens (tokenize) from the input
+        Tokenize (generate tokens from) the input
         stream. Return list of tokens.
         """
         import re
