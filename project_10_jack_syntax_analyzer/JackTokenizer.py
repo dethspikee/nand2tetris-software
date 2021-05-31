@@ -1,4 +1,16 @@
 class JackTokenizer:
+    """
+    Class responsible for grouping characters from the
+    input stream into tokens.
+
+    Attributes
+    ----------
+    fp      :: TextWrapper
+               reference to the opened input stream.
+    tokens  :: list
+               of all tokens needed for the parsing.
+    """
+
     def __init__(self, input_stream) -> None:
         """
         Opens the input .jack file and gets
