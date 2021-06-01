@@ -54,7 +54,7 @@ class JackTokenizer:
         strings = r"\"(.+?)\""
         names = r"[a-zA-Z_][a-zA-Z_0-9]*"
         numbers = r"\d+"
-        whitespace = r"\s+"
+        whitespace = r"(?P<WHITESPACE>)\s+"
         jack_tokens = r"[(+?.~\-/\){},<>*;=&|\[\]]"
 
         master_pat = re.compile(
@@ -63,8 +63,9 @@ class JackTokenizer:
         text = self.remove_comments()
         scanner = master_pat.scanner(text)
         for match in iter(scanner.match, None):
-            token = match.group()
-            yield token
+            if match.lastgroup != 'WHITESPACE':
+                token = match.group()
+                yield token
 
     def has_more_tokens(self) -> bool:
         """
@@ -94,7 +95,61 @@ class JackTokenizer:
         Returns type of current token,
         as a constant.
         """
-        pass
+        keywords = {
+            "class",
+            "constructor",
+            "function",
+            "method",
+            "field",
+            "static",
+            "var",
+            "int",
+            "char",
+            "boolean",
+            "void",
+            "true",
+            "true",
+            "false",
+            "null",
+            "this",
+            "let",
+            "do",
+            "if",
+            "else",
+            "while",
+            "return",
+        }
+        symbols = {
+            "{",
+            "}",
+            "(",
+            ")",
+            "[",
+            "]",
+            ".",
+            ",",
+            ";",
+            "+",
+            "-",
+            "*",
+            "/",
+            "&",
+            "|",
+            "<",
+            ">",
+            "=",
+            "~",
+        }
+        if self.current_token in keywords:
+            return "KEYWORD"
+        if self.current_token in symbols:
+            return "SYMBOL"
+        if self.current_token.startswith('"') and self.current_token.endswith('"'):
+            return "STRING_CONST"
+        if self.current_token.isnumeric():
+            return "INT_CONST"
+        if self.current_token != " ":
+            return "IDENTIFIER"
 
     def keyword(self) -> str:
         pass
