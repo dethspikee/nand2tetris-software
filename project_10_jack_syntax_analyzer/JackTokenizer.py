@@ -11,8 +11,8 @@ class JackTokenizer:
     ----------
     file_obj      :: TextWrapper
                      reference to the opened input stream.
-    tokens        :: list
-                     of all tokens needed for the parsing.
+    tokens        :: generator
+                     yielding next token(s)
     """
 
     def __init__(self, input_stream) -> None:
