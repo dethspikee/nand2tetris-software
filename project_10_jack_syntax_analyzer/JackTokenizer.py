@@ -21,8 +21,9 @@ class JackTokenizer:
         ready to tokenize it.
         """
         self.file_obj = open(input_stream, "rt")
-        self.tokens = list(self.generate_tokens())
-
+        self.tokens = self.generate_tokens()
+        self.current_token = None
+    
     def remove_comments(self) -> str:
         """
         Traverse through the input stream
@@ -67,7 +68,7 @@ class JackTokenizer:
         Check if there are more tokens
         in the input stream.
         """
-        pass
+        return self.advance()
 
     def advance(self) -> None:
         """
@@ -79,7 +80,11 @@ class JackTokenizer:
 
         Initially there is no current token.
         """
-        pass
+        try:
+            self.current_token = next(self.tokens)
+            return True
+        except StopIteration:
+            return False
 
     def token_type(self) -> str:
         """
