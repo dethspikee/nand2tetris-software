@@ -43,8 +43,7 @@ class JackTokenizer:
                 pass
             no_comments.append(stripped)
 
-        joined = "".join(no_comments)
-        return joined
+        return "".join(no_comments)
 
     def generate_tokens(self) -> Generator[str, None, None]:
         """
