@@ -148,7 +148,7 @@ class JackTokenizer:
             return "STRING_CONST"
         if self.current_token.isnumeric():
             return "INT_CONST"
-        if self.current_token != " ":
+        else:
             return "IDENTIFIER"
 
     def keyword(self) -> str:
