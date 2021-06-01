@@ -23,7 +23,7 @@ class JackTokenizer:
         self.file_obj = open(input_stream, "rt")
         self.tokens = self.generate_tokens()
         self.current_token = None
-    
+
     def remove_comments(self) -> str:
         """
         Traverse through the input stream
@@ -51,12 +51,15 @@ class JackTokenizer:
         Tokenize (generate tokens from) the input
         stream. Return list of tokens.
         """
-        variables = r"[a-zA-Z_][a-zA-Z_0-9]*"
+        strings = r"\"(.+?)\""
+        names = r"[a-zA-Z_][a-zA-Z_0-9]*"
         numbers = r"\d+"
         whitespace = r"\s+"
-        jack_tokens = r'[(+?.~\-/\){},<>*:;="&|\[\]]'
+        jack_tokens = r"[(+?.~\-/\){},<>*;=&|\[\]]"
 
-        master_pat = re.compile("|".join([variables, numbers, whitespace, jack_tokens]))
+        master_pat = re.compile(
+            "|".join([names, numbers, whitespace, jack_tokens, strings])
+        )
         text = self.remove_comments()
         scanner = master_pat.scanner(text)
         for match in iter(scanner.match, None):
