@@ -63,7 +63,7 @@ class JackTokenizer:
         text = self.remove_comments()
         scanner = master_pat.scanner(text)
         for match in iter(scanner.match, None):
-            if match.lastgroup != 'WHITESPACE':
+            if match.lastgroup != "WHITESPACE":
                 token = match.group()
                 yield token
 
