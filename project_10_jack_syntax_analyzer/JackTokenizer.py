@@ -13,6 +13,9 @@ class JackTokenizer:
                      reference to the opened input stream.
     tokens        :: generator
                      yielding next token(s)
+    current_token :: str
+                     reference to the current token. In the beginning
+                     current token is None.
     """
 
     def __init__(self, input_stream) -> None:
