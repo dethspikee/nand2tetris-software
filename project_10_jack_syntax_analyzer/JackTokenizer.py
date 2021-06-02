@@ -70,7 +70,7 @@ class JackTokenizer:
                 token = match.group()
                 yield token
 
-    def has_more_tokens(self) -> bool:
+    def has_tokens(self) -> bool:
         """
         Check if there are more tokens
         in the input stream.
