@@ -16,6 +16,9 @@ class CompilationEngine:
     def __init__(self, tokenizer):
         self.tokenizer = tokenizer
 
+    def show_tokens(self):
+        print(list(self.tokenizer.tokens))
+
     def __enter__(self):
         basename = os.path.basename(self.tokenizer.file_obj.name)
         output_name = basename.split(".")[0]
