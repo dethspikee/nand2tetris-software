@@ -1,5 +1,6 @@
 from typing import Generator
 import re
+import os
 
 
 class JackTokenizer:
@@ -38,7 +39,7 @@ class JackTokenizer:
         no_comments = []
         for line in self.file_obj:
             stripped = line.strip("\t\n ")
-            if stripped.startswith(("//", "/**")):
+            if stripped.startswith(("//", "/**", "*", "*/")):
                 continue
             try:
                 start_of_comment = stripped.index("//")
@@ -224,7 +225,8 @@ class JackTokenizer:
 
         Method used for debugging purposes.
         """
-        output_name = self.file_obj.name.split(".")[0]
+        basename = os.path.basename(self.file_obj.name)
+        output_name = basename.split(".")[0]
         with open(f"{output_name}T.xml", "wt", encoding="utf-8") as fp:
             fp.write("<tokens>\n")
             while self.has_tokens():
