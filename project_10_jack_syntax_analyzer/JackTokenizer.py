@@ -13,9 +13,9 @@ class JackTokenizer:
                      reference to the opened input stream.
     tokens        :: generator
                      yielding next token(s)
-    current_token :: str
+    token         :: str
                      reference to the current token. In the beginning
-                     current token is None.
+                     token is None.
     """
 
     def __init__(self, input_stream) -> None:
@@ -25,7 +25,7 @@ class JackTokenizer:
         """
         self.file_obj = open(input_stream, "rt")
         self.tokens = self._generate_tokens()
-        self.current_token = None
+        self.token = None
 
     def _remove_comments(self) -> str:
         """
@@ -88,7 +88,7 @@ class JackTokenizer:
         Initially there is no current token.
         """
         try:
-            self.current_token = next(self.tokens)
+            self.token = next(self.tokens)
             return True
         except StopIteration:
             return False
@@ -143,13 +143,13 @@ class JackTokenizer:
             "=",
             "~",
         }
-        if self.current_token in keywords:
+        if self.token in keywords:
             return "KEYWORD"
-        if self.current_token in symbols:
+        if self.token in symbols:
             return "SYMBOL"
-        if self.current_token.startswith('"') and self.current_token.endswith('"'):
+        if self.token.startswith('"') and self.token.endswith('"'):
             return "STRING_CONST"
-        if self.current_token.isnumeric():
+        if self.token.isnumeric():
             return "INT_CONST"
         else:
             return "IDENTIFIER"
@@ -162,28 +162,28 @@ class JackTokenizer:
         This method should be called only if token_type
         is KEYWORD
         """
-        return self.current_token.upper()
+        return self.token.upper()
 
     def _symbol(self) -> str:
         """
         Returns the character which is the current token.
         Should only be called if token_type is SYMBOL.
         """
-        return self.current_token
+        return self.token
 
     def _identifier(self) -> str:
         """
         Returns the identifier which is the current token.
         Should only be called if token_type is IDENTIFIER.
         """
-        return self.current_token
+        return self.token
 
     def _int_val(self) -> int:
         """
         Returns the integer value of the current token.
         Should only be called if token_type is INT_CONST.
         """
-        return int(self.current_token)
+        return int(self.token)
 
     def _string_val(self) -> str:
         """
@@ -196,5 +196,5 @@ class JackTokenizer:
         As per the specification string values must be presented without
         the surrounding double quotes.
         """
-        copy = self.current_token
+        copy = self.token
         return copy.replace('"', "")
