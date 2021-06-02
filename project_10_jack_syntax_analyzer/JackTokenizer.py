@@ -21,10 +21,10 @@ class JackTokenizer:
         ready to tokenize it.
         """
         self.file_obj = open(input_stream, "rt")
-        self.tokens = self.generate_tokens()
+        self.tokens = self._generate_tokens()
         self.current_token = None
 
-    def remove_comments(self) -> str:
+    def _remove_comments(self) -> str:
         """
         Traverse through the input stream
         and remove all the comments from it;
@@ -46,7 +46,7 @@ class JackTokenizer:
 
         return "".join(no_comments)
 
-    def generate_tokens(self) -> Generator[str, None, None]:
+    def _generate_tokens(self) -> Generator[str, None, None]:
         """
         Tokenize (generate tokens from) the input
         stream. Return list of tokens.
@@ -60,7 +60,7 @@ class JackTokenizer:
         master_pat = re.compile(
             "|".join([names, numbers, whitespace, jack_tokens, strings])
         )
-        text = self.remove_comments()
+        text = self._remove_comments()
         scanner = master_pat.scanner(text)
         for match in iter(scanner.match, None):
             if match.lastgroup != "WHITESPACE":
