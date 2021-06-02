@@ -1,3 +1,6 @@
+import os
+
+
 class CompilationEngine:
     """
     Class that effects the actual compilation output.
@@ -12,3 +15,13 @@ class CompilationEngine:
 
     def __init__(self, tokenizer):
         self.tokenizer = tokenizer
+
+    def __enter__(self):
+        basename = os.path.basename(self.tokenizer.file_obj.name)
+        output_name = basename.split(".")[0]
+        self.file_obj = open(f"{output_name}.xml", "wt", encoding="utf-8")
+        return self
+
+    def __exit__(self, exc_type, exc_val, exc_tb):
+        if self.file_obj:
+            self.file_obj.close()
