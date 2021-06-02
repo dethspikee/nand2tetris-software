@@ -72,9 +72,9 @@ class JackTokenizer:
         Check if there are more tokens
         in the input stream.
         """
-        return self.advance()
+        return self.__advance()
 
-    def advance(self) -> None:
+    def __advance(self) -> None:
         """
         Gets the next token from the input,
         and makes it the current token.
