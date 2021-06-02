@@ -198,3 +198,50 @@ class JackTokenizer:
         """
         copy = self.token
         return copy.replace('"', "")
+
+    def _get_token_classification(self) -> str:
+        """
+        Return classification needed for the XML output.
+        """
+        if self._token_type() == "KEYWORD":
+            return "keyword"
+        if self._token_type() == "SYMBOL":
+            return "symbol"
+        if self._token_type() == "INT_CONST":
+            return "integerConstant"
+        if self._token_type() == "STRING_CONST":
+            return "stringConstant"
+        if self._token_type() == "IDENTIFIER":
+            return "identifier"
+
+    def test(self):
+        """
+        Calling this method will result in writing new .xml file
+        containing the following structure:
+        <tokens>
+            <token classification> token </token class>
+        </tokens>
+
+        Method used for debugging purposes.
+        """
+        output_name = self.file_obj.name.split(".")[0]
+        with open(f"{output_name}T.xml", "wt", encoding="utf-8") as fp:
+            fp.write("<tokens>\n")
+            while self.has_tokens():
+                classification = self._get_token_classification()
+                if self._token_type() == "STRING_CONST":
+                    token = self.token.replace('"', "").strip(" ")
+                elif self.token == "<":
+                    token = "&lt;"
+                elif self.token == ">":
+                    token = "&gt;"
+                elif self.token == '"':
+                    token = "&quot;"
+                elif self.token == "&":
+                    token = "&amp;"
+                else:
+                    token = self.token
+                fp.write(
+                    f"\t<{self._get_token_classification()}> {token} </{self._get_token_classification()}>\n"
+                )
+            fp.write("</tokens>\n")
