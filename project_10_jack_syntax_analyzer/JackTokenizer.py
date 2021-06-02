@@ -72,9 +72,9 @@ class JackTokenizer:
         Check if there are more tokens
         in the input stream.
         """
-        return self.__advance()
+        return self._advance()
 
-    def __advance(self) -> None:
+    def _advance(self) -> None:
         """
         Gets the next token from the input,
         and makes it the current token.
@@ -90,7 +90,7 @@ class JackTokenizer:
         except StopIteration:
             return False
 
-    def token_type(self) -> str:
+    def _token_type(self) -> str:
         """
         Returns type of current token,
         as a constant.
@@ -151,8 +151,15 @@ class JackTokenizer:
         else:
             return "IDENTIFIER"
 
-    def keyword(self) -> str:
-        pass
+    def _keyword(self) -> str:
+        """
+        Returns the keyword which is the current,
+        as a constant.
+
+        This method should be called only if token_type
+        is KEYWORD
+        """
+        return self.current_token.upper()
 
     def symbol(self) -> str:
         pass
