@@ -168,8 +168,12 @@ class JackTokenizer:
         """
         return self.current_token.upper()
 
-    def identifier(self) -> str:
-        pass
+    def _identifier(self) -> str:
+        """
+        Returns the identifier which is the current token.
+        Should only be called if token_type is IDENTIFIER.
+        """
+        return self.current_token
 
     def int_val(self) -> int:
         pass
