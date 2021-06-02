@@ -182,5 +182,16 @@ class JackTokenizer:
         """
         return int(self.current_token)
 
-    def str_val(self) -> str:
-        pass
+    def _string_val(self) -> str:
+        """
+        Returns the string value of the current token.
+        Should only be called if token_type is STRING_CONST.
+
+        The string value returned will have double quotes removed.
+        Reasoning below:
+
+        As per the specification string values must be presented without
+        the surrounding double quotes.
+        """
+        copy = self.current_token
+        return copy.replace('"', "")
