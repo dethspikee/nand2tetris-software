@@ -166,7 +166,7 @@ class JackTokenizer:
         Returns the character which is the current token.
         Should only be called if token_type is SYMBOL.
         """
-        return self.current_token.upper()
+        return self.current_token()
 
     def _identifier(self) -> str:
         """
