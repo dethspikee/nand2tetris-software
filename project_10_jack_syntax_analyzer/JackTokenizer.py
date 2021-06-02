@@ -34,9 +34,9 @@ class JackTokenizer:
         """
         no_comments = []
         for line in self.file_obj:
-            if line.startswith(("//", "/**")):
-                continue
             stripped = line.strip("\t\n ")
+            if stripped.startswith(("//", "/**")):
+                continue
             try:
                 start_of_comment = stripped.index("//")
                 stripped = stripped[:start_of_comment]
