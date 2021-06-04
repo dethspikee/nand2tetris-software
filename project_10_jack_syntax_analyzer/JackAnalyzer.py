@@ -1,6 +1,9 @@
 import sys
 import os
 
+from JackTokenizer import JackTokenizer
+from CompilationEngine import CompilationEngine
+
 
 def main() -> None:
     """
@@ -25,13 +28,22 @@ def main() -> None:
     program_arg = sys.argv[1]
     if os.path.isdir(program_arg):
         jack_files = [
-            name
+            os.path.join(program_arg, name)
             for name in os.listdir(program_arg)
             if name.endswith(".jack")
             and os.path.isfile(os.path.join(program_arg, name))
         ]
+        for file_ in jack_files:
+            tokenizer = JackTokenizer(file_)
+            with CompilationEngine(tokenizer) as compiler:
+                compiler.show_tokens()
+            tokenizer.file_obj.close()
     elif program_arg.endswith(".jack"):
-        pass
+        tokenizer = JackTokenizer(program_arg)
+        with CompilationEngine(tokenizer) as compiler:
+            compiler.parse()
+
+        tokenizer.file_obj.close()
 
 
 if __name__ == "__main__":
