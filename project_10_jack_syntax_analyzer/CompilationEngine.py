@@ -22,7 +22,7 @@ class CompilationEngine:
             if self.tokenizer.token == "while":
                 self.compile_while()
 
-    def compile_statements(self):
+    def _compile_statements(self):
         self.file_obj.write(" " * self.indent + "<statements>\n")
         if self.tokenizer.token == "let":
             self.compile_let()
@@ -49,7 +49,7 @@ class CompilationEngine:
         self.compile_expression()
         self._eat(")")
         self._eat("{")
-        self.compile_statements()
+        self._compile_statements()
         self._eat("}")
         self.indent -= 2
         self.file_obj.write("</whileStatement>\n")
