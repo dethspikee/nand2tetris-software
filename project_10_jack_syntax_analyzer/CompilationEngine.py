@@ -29,21 +29,21 @@ class CompilationEngine:
         self.file_obj.write(" " * self.indent + "</statements>\n")
 
     def compile_let(self):
-        self.indent += 2
+        self._increase_indent()
         self.file_obj.write(" " * self.indent + f"<letStatement>\n")
-        self.indent += 2
+        self._increase_indent()
         self._eat("let")
         self._eat(self.tokenizer.token)
         self._eat("=")
         self.compile_expression()
         self._eat(";")
-        self.indent -= 2
+        self._decrease_indent()
         self.file_obj.write(" " * self.indent + f"<letStatement>\n")
-        self.indent -= 2
+        self._decrease_indent()
 
     def compile_while(self):
         self.file_obj.write("<whileStatement>\n")
-        self.indent += 2
+        self._increase_indent()
         self._eat("while")
         self._eat("(")
         self.compile_expression()
@@ -51,23 +51,23 @@ class CompilationEngine:
         self._eat("{")
         self._compile_statements()
         self._eat("}")
-        self.indent -= 2
+        self._decrease_indent()
         self.file_obj.write("</whileStatement>\n")
 
     def compile_expression(self):
         self.file_obj.write(" " * self.indent + "<expression>\n")
-        self.indent += 2
+        self._increase_indent()
         self.complile_term()
         op = self.tokenizer.token
         if self.tokenizer.token_type() == "SYMBOL":
             self._eat(op)
             self.complile_term()
-        self.indent -= 2
+        self._decrease_indent()
         self.file_obj.write(" " * self.indent + "</expression>\n")
 
     def complile_term(self):
         self.file_obj.write(" " * self.indent + "<term>\n")
-        self.indent += 2
+        self._increase_indent()
         varname = self.tokenizer.token
         next_token = next(self.tokenizer.tokens)
         if next_token == ".":
@@ -81,7 +81,7 @@ class CompilationEngine:
             self.file_obj.write(" " * self.indent + f"<{classification}>")
             self.file_obj.write(f" {self.tokenizer.token} ")
             self.file_obj.write(f"</{classification}>\n")
-        self.indent -= 2
+        self._decrease_indent()
         self.file_obj.write(" " * self.indent + "</term>\n")
         self.tokenizer.token = next_token
 
@@ -94,6 +94,12 @@ class CompilationEngine:
 
     def show_tokens(self):
         print(list(self.tokenizer.tokens))
+
+    def _increase_indent(self):
+        self.indent += 2
+
+    def _decrease_indent(self):
+        self.indent -= 2
 
     def __enter__(self):
         basename = os.path.basename(self.tokenizer.file_obj.name)
