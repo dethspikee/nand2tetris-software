@@ -47,22 +47,18 @@ class CompilationEngine:
             pass
 
     def _compile_var_dec(self):
-        if self.tokenizer.token in {"field", "static"}:
-            while self.tokenizer.token in {"field", "static"}:
-                self.file_obj.write(" " * self.indent + "<classVarDec>\n")
-                self._increase_indent()
-                self._eat(self.tokenizer.token)
-                self._compile_type()
+        while self.tokenizer.token in {"field", "static"}:
+            self.file_obj.write(" " * self.indent + "<classVarDec>\n")
+            self._increase_indent()
+            self._eat(self.tokenizer.token)
+            self._compile_type()
+            self._compile_var_name()
+            while self.tokenizer.token == ",":
+                self._eat(",")
                 self._compile_var_name()
-                while self.tokenizer.token == ",":
-                    self._eat(",")
-                    self._compile_var_name()
-                self._eat(";")
-                self._decrease_indent()
-                self.file_obj.write(" " * self.indent + "</classVarDec>\n")
-        else:
-            # raise an invalid token exception
-            pass
+            self._eat(";")
+            self._decrease_indent()
+            self.file_obj.write(" " * self.indent + "</classVarDec>\n")
 
     def _compile_type(self):
         if self.tokenizer.token in {"int", "boolean", "char"}:
@@ -77,6 +73,13 @@ class CompilationEngine:
         else:
             # raise an error if first char of identifier is a digit
             pass
+
+    def _compile_subroutine_dec(self):
+        if self.tokenizer.token in {"constructor", "function", "method", "void"}:
+            pass
+
+    def _compile_subroutine_body(self):
+        pass
 
     def _compile_statements(self):
         self.file_obj.write(" " * self.indent + "<statements>\n")
