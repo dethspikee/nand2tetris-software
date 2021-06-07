@@ -145,8 +145,9 @@ class CompilationEngine:
 
     def _compile_statements(self):
         self.file_obj.write(" " * self.indent + "<statements>\n")
-        if self.tokenizer.token == "let":
-            self.compile_let()
+        while self.tokenizer.token in {"let", "if", "while", "do", "return"}:
+            if self.tokenizer.token == "let":
+                self.compile_let()
         self.file_obj.write(" " * self.indent + "</statements>\n")
 
     def compile_let(self):
