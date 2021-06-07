@@ -18,6 +18,9 @@ class CompilationEngine:
         self.indent = 0
 
     def parse(self):
+        """
+        Parses given input stream of tokens into a XML parse tree.
+        """
         while self.tokenizer.has_tokens():
             if self.tokenizer.token == "class":
                 self._compile_class()
