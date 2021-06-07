@@ -154,7 +154,7 @@ class CompilationEngine:
         self.file_obj.write(" " * self.indent + f"<letStatement>\n")
         self._increase_indent()
         self._eat("let")
-        self._eat(self.tokenizer.token)
+        self._compile_var_name()
         self._eat("=")
         self.compile_expression()
         self._eat(";")
@@ -180,7 +180,7 @@ class CompilationEngine:
         self._increase_indent()
         self.complile_term()
         op = self.tokenizer.token
-        if self.tokenizer.token_type() == "SYMBOL":
+        if op in {"+", "-", "*", "/", "&", "|", "<", ">", "="}:
             self._eat(op)
             self.complile_term()
         self._decrease_indent()
