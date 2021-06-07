@@ -76,9 +76,9 @@ class JackTokenizer:
         Check if there are more tokens
         in the input stream.
         """
-        return self._advance()
+        return self.advance()
 
-    def _advance(self) -> None:
+    def advance(self) -> None:
         """
         Gets the next token from the input,
         and makes it the current token.
@@ -94,7 +94,7 @@ class JackTokenizer:
         except StopIteration:
             return False
 
-    def _token_type(self) -> str:
+    def token_type(self) -> str:
         """
         Returns type of current token,
         as a constant.
@@ -200,19 +200,19 @@ class JackTokenizer:
         copy = self.token
         return copy.replace('"', "")
 
-    def _get_token_classification(self) -> str:
+    def get_token_classification(self) -> str:
         """
         Return classification needed for the XML output.
         """
-        if self._token_type() == "KEYWORD":
+        if self.token_type() == "KEYWORD":
             return "keyword"
-        if self._token_type() == "SYMBOL":
+        if self.token_type() == "SYMBOL":
             return "symbol"
-        if self._token_type() == "INT_CONST":
+        if self.token_type() == "INT_CONST":
             return "integerConstant"
-        if self._token_type() == "STRING_CONST":
+        if self.token_type() == "STRING_CONST":
             return "stringConstant"
-        if self._token_type() == "IDENTIFIER":
+        if self.token_type() == "IDENTIFIER":
             return "identifier"
 
     def test(self):
@@ -231,7 +231,7 @@ class JackTokenizer:
             fp.write("<tokens>\n")
             while self.has_tokens():
                 classification = self._get_token_classification()
-                if self._token_type() == "STRING_CONST":
+                if self.token_type() == "STRING_CONST":
                     token = self.token.replace('"', "").strip(" ")
                 elif self.token == "<":
                     token = "&lt;"
