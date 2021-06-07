@@ -117,9 +117,25 @@ class CompilationEngine:
         self.file_obj.write(" " * self.indent + "<subroutineBody>\n")
         self._increase_indent()
         self._eat("{")
+        while self.tokenizer.token == "var":
+            self._compile_var_dec()
+        self._compile_statements()
         self._eat("}")
         self._decrease_indent()
         self.file_obj.write(" " * self.indent + "/<subroutineBody>\n")
+
+    def _compile_var_dec(self):
+        self.file_obj.write(" " * self.indent + "<varDec>\n")
+        self._increase_indent()
+        self._eat("var")
+        self._compile_type()
+        self._compile_var_name()
+        while self.tokenizer.token == ",":
+            self._eat(",")
+            self._compile_var_name()
+        self._eat(";")
+        self._decrease_indent()
+        self.file_obj.write(" " * self.indent + "</varDec>\n")
 
     def _compile_statements(self):
         self.file_obj.write(" " * self.indent + "<statements>\n")
@@ -137,7 +153,7 @@ class CompilationEngine:
         self.compile_expression()
         self._eat(";")
         self._decrease_indent()
-        self.file_obj.write(" " * self.indent + f"<letStatement>\n")
+        self.file_obj.write(" " * self.indent + f"</letStatement>\n")
         self._decrease_indent()
 
     def compile_while(self):
