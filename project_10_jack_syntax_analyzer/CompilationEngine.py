@@ -34,6 +34,7 @@ class CompilationEngine:
         self._compile_class_name()
         self._eat("{")
         self._compile_var_dec()
+        self._compile_subroutine_dec()
         self._eat("}")
         self._decrease_indent()
         self.file_obj.write(" " * self.indent + "</class>\n")
@@ -75,11 +76,36 @@ class CompilationEngine:
             pass
 
     def _compile_subroutine_dec(self):
-        if self.tokenizer.token in {"constructor", "function", "method", "void"}:
+        while self.tokenizer.token in {"constructor", "function", "method"}:
+            self.file_obj.write(" " * self.indent + "<subroutineDec>\n")
+            self._increase_indent()
+            self._eat(self.tokenizer.token)
+            if self.tokenizer.token == "void":
+                self._eat("void")
+            else:
+                self._compile_type()
+            self._compile_subroutine_name()
+            self._eat("(")
+            self._eat(")")
+            self._compile_subroutine_body()
+            self._decrease_indent()
+            self.file_obj.write(" " * self.indent + "</subroutineDec>\n")
+
+    def _compile_subroutine_name(self):
+        first_char_of_token = self.tokenizer.token[0]
+        if not first_char_of_token.isdigit():
+            self._eat(self.tokenizer.token)
+        else:
+            # raise an error if first char of identifier is a digit
             pass
 
     def _compile_subroutine_body(self):
-        pass
+        self.file_obj.write(" " * self.indent + "<subroutineBody>\n")
+        self._increase_indent()
+        self._eat("{")
+        self._eat("}")
+        self._decrease_indent()
+        self.file_obj.write(" " * self.indent + "/<subroutineBody>\n")
 
     def _compile_statements(self):
         self.file_obj.write(" " * self.indent + "<statements>\n")
