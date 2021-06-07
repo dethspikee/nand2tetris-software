@@ -54,6 +54,9 @@ class CompilationEngine:
                 self._eat(self.tokenizer.token)
                 self._compile_type()
                 self._compile_var_name()
+                while self.tokenizer.token == ",":
+                    self._eat(",")
+                    self._compile_var_name()
                 self._eat(";")
                 self._decrease_indent()
                 self.file_obj.write(" " * self.indent + "</classVarDec>\n")
