@@ -1,0 +1,2 @@
+class IncorrectVariableName(Exception):
+    pass
