@@ -129,9 +129,29 @@ class CompilationEngine:
         print(list(self.tokenizer.tokens))
 
     def _increase_indent(self):
+        """
+        Method used to increase indentation level in the
+        the output xml file.
+
+        Together with _decrease_indent() creates better readable XML file:
+        <symbol>
+          <identifier>
+          </identifier>
+        </symbol>
+        """
         self.indent += 2
 
     def _decrease_indent(self):
+        """
+        Method used to decrease indentation level in the
+        output xml file.
+
+        Together with _increase_indent() creates better readable XML file:
+        <symbol>
+          <identifier>
+          </identifier>
+        </symbol>
+        """
         self.indent -= 2
 
     def __enter__(self):
