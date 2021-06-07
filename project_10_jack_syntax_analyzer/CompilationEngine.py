@@ -208,17 +208,18 @@ class CompilationEngine:
 
     def _eat(self, token: str) -> None:
         """
-        This method accepts a token for which it retrieves a classification
+        This method accepts a token for which it retrieves its classification
         and writes the following line to the output xml file:
 
         <token classification> token </token classification>
 
-        for example:
+        for example calling _eat('{') will result in writing the following
+        to the output xml file:
 
         <symbol> { </symbol>
 
-        In the end it calls 'advance()' method of the tokenizer object
-        retrieve next token from the input.
+        In the end calls 'advance()' method of the tokenizer object to
+        retrieve next token from the tokenizer.
         """
         classification = self.tokenizer.get_token_classification()
         self.file_obj.write(" " * self.indent + f"<{classification}>")
