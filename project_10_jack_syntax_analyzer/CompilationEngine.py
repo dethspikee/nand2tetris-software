@@ -19,8 +19,28 @@ class CompilationEngine:
 
     def parse(self):
         while self.tokenizer.has_tokens():
-            if self.tokenizer.token == "while":
+            if self.tokenizer.token == "class":
+                self._compile_class()
+            elif self.tokenizer.token == "while":
                 self.compile_while()
+
+    def _compile_class(self):
+        self.file_obj.write(" " * self.indent + "<class>\n")
+        self._increase_indent()
+        self._eat("class")
+        self._compile_class_name()
+        self._eat("{")
+        self._eat("}")
+        self._decrease_indent()
+        self.file_obj.write(" " * self.indent + "</class>\n")
+
+    def _compile_class_name(self):
+        first_char_of_token = self.tokenizer.token[0]
+        if not first_char_of_token.isdigit():
+            self._eat(self.tokenizer.token)
+        else:
+            # raise an error if first char if identifier is a digit
+            pass
 
     def _compile_statements(self):
         self.file_obj.write(" " * self.indent + "<statements>\n")
