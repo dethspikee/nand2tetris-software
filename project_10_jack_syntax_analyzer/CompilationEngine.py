@@ -33,7 +33,7 @@ class CompilationEngine:
         self._eat("class")
         self._compile_class_name()
         self._eat("{")
-        self._compile_var_dec()
+        self._compile_class_var_dec()
         self._compile_subroutine_dec()
         self._eat("}")
         self._decrease_indent()
@@ -47,7 +47,7 @@ class CompilationEngine:
             # raise an error if first char of identifier is a digit
             pass
 
-    def _compile_var_dec(self):
+    def _compile_class_var_dec(self):
         while self.tokenizer.token in {"field", "static"}:
             self.file_obj.write(" " * self.indent + "<classVarDec>\n")
             self._increase_indent()
