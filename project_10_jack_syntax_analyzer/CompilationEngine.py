@@ -86,10 +86,24 @@ class CompilationEngine:
                 self._compile_type()
             self._compile_subroutine_name()
             self._eat("(")
+            self._compile_parameter_list()
             self._eat(")")
             self._compile_subroutine_body()
             self._decrease_indent()
             self.file_obj.write(" " * self.indent + "</subroutineDec>\n")
+
+    def _compile_parameter_list(self):
+        self.file_obj.write(" " * self.indent + "<parameterList>\n")
+        if self.tokenizer.token != ")":
+            self._increase_indent()
+            self._compile_type()
+            self._compile_var_name()
+            while self.tokenizer.token == ",":
+                self._eat(",")
+                self._compile_type()
+                self._compile_var_name()
+            self._decrease_indent()
+        self.file_obj.write(" " * self.indent + "</parameterList>\n")
 
     def _compile_subroutine_name(self):
         first_char_of_token = self.tokenizer.token[0]
