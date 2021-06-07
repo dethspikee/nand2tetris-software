@@ -33,6 +33,7 @@ class CompilationEngine:
         self._eat("class")
         self._compile_class_name()
         self._eat("{")
+        self._compile_var_dec()
         self._eat("}")
         self._decrease_indent()
         self.file_obj.write(" " * self.indent + "</class>\n")
@@ -42,7 +43,36 @@ class CompilationEngine:
         if not first_char_of_token.isdigit():
             self._eat(self.tokenizer.token)
         else:
-            # raise an error if first char if identifier is a digit
+            # raise an error if first char of identifier is a digit
+            pass
+
+    def _compile_var_dec(self):
+        if self.tokenizer.token in {"field", "static"}:
+            while self.tokenizer.token in {"field", "static"}:
+                self.file_obj.write(" " * self.indent + "<classVarDec>\n")
+                self._increase_indent()
+                self._eat(self.tokenizer.token)
+                self._compile_type()
+                self._compile_var_name()
+                self._eat(";")
+                self._decrease_indent()
+                self.file_obj.write(" " * self.indent + "</classVarDec>\n")
+        else:
+            # raise an invalid token exception
+            pass
+
+    def _compile_type(self):
+        if self.tokenizer.token in {"int", "boolean", "char"}:
+            self._eat(self.tokenizer.token)
+        else:
+            self._compile_class_name()
+
+    def _compile_var_name(self):
+        first_char_of_token = self.tokenizer.token[0]
+        if not first_char_of_token.isdigit():
+            self._eat(self.tokenizer.token)
+        else:
+            # raise an error if first char of identifier is a digit
             pass
 
     def _compile_statements(self):
