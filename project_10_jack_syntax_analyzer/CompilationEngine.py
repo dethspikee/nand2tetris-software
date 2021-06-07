@@ -105,7 +105,20 @@ class CompilationEngine:
         self.file_obj.write(" " * self.indent + "</term>\n")
         self.tokenizer.token = next_token
 
-    def _eat(self, token: str):
+    def _eat(self, token: str) -> None:
+        """
+        This method accepts a token for which it retrieves a classification
+        and writes the following line to the output xml file:
+
+        <token classification> token </token classification>
+
+        for example:
+
+        <symbol> { </symbol>
+
+        In the end it calls 'advance()' method of the tokenizer object
+        retrieve next token from the input.
+        """
         classification = self.tokenizer.get_token_classification()
         self.file_obj.write(" " * self.indent + f"<{classification}>")
         self.file_obj.write(f" {token} ")
