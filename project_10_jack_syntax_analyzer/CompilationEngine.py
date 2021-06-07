@@ -1,6 +1,9 @@
 import os
 
 
+from exceptions import IncorrectVariableName
+
+
 class CompilationEngine:
     """
     Class that effects the actual compilation output.
@@ -44,8 +47,9 @@ class CompilationEngine:
         if not first_char_of_token.isdigit():
             self._eat(self.tokenizer.token)
         else:
-            # raise an error if first char of identifier is a digit
-            pass
+            raise IncorrectVariableName(
+                "First character of the class cannot be a digit!"
+            )
 
     def _compile_class_var_dec(self):
         while self.tokenizer.token in {"field", "static"}:
@@ -72,8 +76,9 @@ class CompilationEngine:
         if not first_char_of_token.isdigit():
             self._eat(self.tokenizer.token)
         else:
-            # raise an error if first char of identifier is a digit
-            pass
+            raise IncorrectVariableName(
+                "First character of the variable cannot be a digit!"
+            )
 
     def _compile_subroutine_dec(self):
         while self.tokenizer.token in {"constructor", "function", "method"}:
@@ -110,8 +115,9 @@ class CompilationEngine:
         if not first_char_of_token.isdigit():
             self._eat(self.tokenizer.token)
         else:
-            # raise an error if first char of identifier is a digit
-            pass
+            raise IncorrectVariableName(
+                "First character of the subroutine cannot be a digit!"
+            )
 
     def _compile_subroutine_body(self):
         self.file_obj.write(" " * self.indent + "<subroutineBody>\n")
