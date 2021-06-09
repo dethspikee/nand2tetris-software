@@ -174,7 +174,29 @@ class CompilationEngine:
                 self._compile_return()
             elif self.tokenizer.token == "while":
                 self.compile_while()
+            elif self.tokenizer.token == "if":
+                self._compile_if()
         self.file_obj.write(" " * self.indent + "</statements>\n")
+
+    def _compile_if(self):
+        self._increase_indent()
+        self.file_obj.write(" " * self.indent + "<ifStatement>\n")
+        self._increase_indent()
+        self._eat("if")
+        self._eat("(")
+        self.compile_expression()
+        self._eat(")")
+        self._eat("{")
+        self._compile_statements()
+        self._eat("}")
+        if self.tokenizer.token == "else":
+            self._eat("else")
+            self._eat("{")
+            self._compile_statements()
+            self._eat("}")
+        self._decrease_indent()
+        self.file_obj.write(" " * self.indent + "</ifStatement>\n")
+        self._decrease_indent()
 
     def compile_let(self):
         self._increase_indent()
