@@ -27,8 +27,6 @@ class CompilationEngine:
         while self.tokenizer.has_tokens():
             if self.tokenizer.token == "class":
                 self._compile_class()
-            elif self.tokenizer.token == "while":
-                self.compile_while()
 
     def _compile_class(self):
         self.file_obj.write(" " * self.indent + "<class>\n")
@@ -142,6 +140,10 @@ class CompilationEngine:
             self._eat("(")
             self._compile_expression_list()
             self._eat(")")
+        elif self.tokenizer.token == "[":
+            self._eat("[")
+            self.compile_expression()
+            self._eat("]")
 
     def _compile_expression_list(self):
         self.file_obj.write(" " * self.indent + "<expressionList>\n")
@@ -270,17 +272,20 @@ class CompilationEngine:
         varname = self.tokenizer.token
         self._eat(varname)
         if self.tokenizer.token == ".":
-            self._eat(self.tokenizer.token)
+            self._eat(".")
             self._compile_subroutine_name()
-            self._eat(self.tokenizer.token)
+            self._eat("(")
+            self._compile_expression_list()
+            self._eat(")")
         elif self.tokenizer.token == "(":
-            pass
+            self.compile_expression()
+            self._eat(")")
         elif self.tokenizer.token == "[":
             pass
         self._decrease_indent()
         self.file_obj.write(" " * self.indent + "</term>\n")
 
-    def _eat(self, token: str, classification=None) -> None:
+    def _eat(self, token: str) -> None:
         """
         This method accepts a token for which it retrieves its classification
         and writes the following line to the output xml file:
@@ -295,8 +300,17 @@ class CompilationEngine:
         In the end calls 'advance()' method of the tokenizer object to
         retrieve next token from the tokenizer.
         """
-        if classification is None:
-            classification = self.tokenizer.get_token_classification()
+        classification = self.tokenizer.get_token_classification()
+        if classification == "stringConstant":
+            token = token.replace('"', "").strip()
+        elif token == "<":
+            token = "&lt;"
+        elif token == ">":
+            token = "&gt;"
+        elif token == '"':
+            token = "&quot;"
+        elif token == "&":
+            token = "&amp;"
         self.file_obj.write(" " * self.indent + f"<{classification}>")
         self.file_obj.write(f" {token} ")
         self.file_obj.write(f"</{classification}>\n")
