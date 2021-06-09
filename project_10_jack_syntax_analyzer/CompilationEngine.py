@@ -128,7 +128,7 @@ class CompilationEngine:
         self._compile_statements()
         self._eat("}")
         self._decrease_indent()
-        self.file_obj.write(" " * self.indent + "/<subroutineBody>\n")
+        self.file_obj.write(" " * self.indent + "</subroutineBody>\n")
 
     def _compile_var_dec(self):
         self.file_obj.write(" " * self.indent + "<varDec>\n")
@@ -148,6 +148,12 @@ class CompilationEngine:
         while self.tokenizer.token in {"let", "if", "while", "do", "return"}:
             if self.tokenizer.token == "let":
                 self.compile_let()
+            elif self.tokenizer.token == "do":
+                self._compile_do()
+            elif self.tokenizer.token == "return":
+                self._compile_return()
+            elif self.tokenizer.token == "while":
+                self.compile_while()
         self.file_obj.write(" " * self.indent + "</statements>\n")
 
     def compile_let(self):
@@ -163,8 +169,36 @@ class CompilationEngine:
         self.file_obj.write(" " * self.indent + f"</letStatement>\n")
         self._decrease_indent()
 
+    def _compile_do(self):
+        self._increase_indent()
+        self.file_obj.write(" " * self.indent + "<doStatement>\n")
+        self._increase_indent()
+        self._eat("do")
+        self._compile_subroutine_name()
+        self._eat(".")
+        self._compile_var_name()
+        self._eat("(")
+        self._eat(")")
+        self._eat(";")
+        self._decrease_indent()
+        self.file_obj.write(" " * self.indent + "</doStatement>\n")
+        self._decrease_indent()
+
+    def _compile_return(self):
+        self._increase_indent()
+        self.file_obj.write(" " * self.indent + "<returnStatement>\n")
+        self._increase_indent()
+        self._eat("return")
+        if self.tokenizer.token != ";":
+            self.compile_expression()
+        self._eat(";")
+        self._decrease_indent()
+        self.file_obj.write(" " * self.indent + "</returnStatement>\n")
+        self._decrease_indent()
+
     def compile_while(self):
-        self.file_obj.write("<whileStatement>\n")
+        self._increase_indent()
+        self.file_obj.write(" " * self.indent + "<whileStatement>\n")
         self._increase_indent()
         self._eat("while")
         self._eat("(")
@@ -174,7 +208,8 @@ class CompilationEngine:
         self._compile_statements()
         self._eat("}")
         self._decrease_indent()
-        self.file_obj.write("</whileStatement>\n")
+        self.file_obj.write(" " * self.indent + "</whileStatement>\n")
+        self._decrease_indent()
 
     def compile_expression(self):
         self.file_obj.write(" " * self.indent + "<expression>\n")
@@ -191,23 +226,19 @@ class CompilationEngine:
         self.file_obj.write(" " * self.indent + "<term>\n")
         self._increase_indent()
         varname = self.tokenizer.token
-        next_token = next(self.tokenizer.tokens)
-        if next_token == ".":
+        self._eat(varname)
+        if self.tokenizer.token == ".":
+            self._eat(self.tokenizer.token)
+            self._compile_subroutine_name()
+            self._eat(self.tokenizer.token)
+        elif self.tokenizer.token == "(":
             pass
-        elif next_token == "(":
+        elif self.tokenizer.token == "[":
             pass
-        elif next_token == "[":
-            pass
-        else:
-            classification = self.tokenizer.get_token_classification()
-            self.file_obj.write(" " * self.indent + f"<{classification}>")
-            self.file_obj.write(f" {self.tokenizer.token} ")
-            self.file_obj.write(f"</{classification}>\n")
         self._decrease_indent()
         self.file_obj.write(" " * self.indent + "</term>\n")
-        self.tokenizer.token = next_token
 
-    def _eat(self, token: str) -> None:
+    def _eat(self, token: str, classification=None) -> None:
         """
         This method accepts a token for which it retrieves its classification
         and writes the following line to the output xml file:
@@ -222,7 +253,8 @@ class CompilationEngine:
         In the end calls 'advance()' method of the tokenizer object to
         retrieve next token from the tokenizer.
         """
-        classification = self.tokenizer.get_token_classification()
+        if classification is None:
+            classification = self.tokenizer.get_token_classification()
         self.file_obj.write(" " * self.indent + f"<{classification}>")
         self.file_obj.write(f" {token} ")
         self.file_obj.write(f"</{classification}>\n")
