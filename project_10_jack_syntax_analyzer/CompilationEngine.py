@@ -210,6 +210,10 @@ class CompilationEngine:
         self._increase_indent()
         self._eat("let")
         self._compile_var_name()
+        if self.tokenizer.token == "[":
+            self._eat("[")
+            self.compile_expression()
+            self._eat("]")
         self._eat("=")
         self.compile_expression()
         self._eat(";")
@@ -281,7 +285,9 @@ class CompilationEngine:
             self.compile_expression()
             self._eat(")")
         elif self.tokenizer.token == "[":
-            pass
+            self._eat("[")
+            self.compile_expression()
+            self._eat("]")
         self._decrease_indent()
         self.file_obj.write(" " * self.indent + "</term>\n")
 
