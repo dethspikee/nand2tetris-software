@@ -138,6 +138,10 @@ class CompilationEngine:
             self._eat("(")
             self._compile_expression_list()
             self._eat(")")
+        elif self.tokenizer.token == "(":
+            self._eat("(")
+            self._compile_expression_list()
+            self._eat(")")
 
     def _compile_expression_list(self):
         self.file_obj.write(" " * self.indent + "<expressionList>\n")
