@@ -130,6 +130,26 @@ class CompilationEngine:
         self._decrease_indent()
         self.file_obj.write(" " * self.indent + "</subroutineBody>\n")
 
+    def _compile_subroutine_call(self):
+        self._eat(self.tokenizer.token)
+        if self.tokenizer.token == ".":
+            self._eat(".")
+            self._compile_subroutine_name()
+            self._eat("(")
+            self._compile_expression_list()
+            self._eat(")")
+
+    def _compile_expression_list(self):
+        self.file_obj.write(" " * self.indent + "<expressionList>\n")
+        self._increase_indent()
+        if self.tokenizer.token != ")":
+            self.compile_expression()
+            while self.tokenizer.token == ",":
+                self._eat(",")
+                self.compile_expression()
+        self._decrease_indent()
+        self.file_obj.write(" " * self.indent + "</expressionList>\n")
+
     def _compile_var_dec(self):
         self.file_obj.write(" " * self.indent + "<varDec>\n")
         self._increase_indent()
@@ -174,11 +194,7 @@ class CompilationEngine:
         self.file_obj.write(" " * self.indent + "<doStatement>\n")
         self._increase_indent()
         self._eat("do")
-        self._compile_subroutine_name()
-        self._eat(".")
-        self._compile_var_name()
-        self._eat("(")
-        self._eat(")")
+        self._compile_subroutine_call()
         self._eat(";")
         self._decrease_indent()
         self.file_obj.write(" " * self.indent + "</doStatement>\n")
@@ -226,6 +242,7 @@ class CompilationEngine:
         self.file_obj.write(" " * self.indent + "<term>\n")
         self._increase_indent()
         varname = self.tokenizer.token
+        print(varname)
         self._eat(varname)
         if self.tokenizer.token == ".":
             self._eat(self.tokenizer.token)
