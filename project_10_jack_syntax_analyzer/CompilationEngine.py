@@ -268,7 +268,6 @@ class CompilationEngine:
         self.file_obj.write(" " * self.indent + "<term>\n")
         self._increase_indent()
         varname = self.tokenizer.token
-        print(varname)
         self._eat(varname)
         if self.tokenizer.token == ".":
             self._eat(self.tokenizer.token)
