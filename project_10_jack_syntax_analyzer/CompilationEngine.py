@@ -56,7 +56,11 @@ class CompilationEngine:
                 "First character of the class cannot be a digit!"
             )
 
-    def _compile_class_var_dec(self):
+    def _compile_class_var_dec(self) -> None:
+        """
+        Compiles a static declaration or
+        a field declaration.
+        """
         while self.tokenizer.token in {"field", "static"}:
             self.file_obj.write(" " * self.indent + "<classVarDec>\n")
             self._increase_indent()
@@ -70,13 +74,20 @@ class CompilationEngine:
             self._decrease_indent()
             self.file_obj.write(" " * self.indent + "</classVarDec>\n")
 
-    def _compile_type(self):
+    def _compile_type(self) -> None:
+        """
+        Compiles a variable type otherwise calls _compile_class_name().
+        """
         if self.tokenizer.token in {"int", "boolean", "char"}:
             self._eat(self.tokenizer.token)
         else:
             self._compile_class_name()
 
-    def _compile_var_name(self):
+    def _compile_var_name(self) -> None:
+        """
+        Compiles variable name. Raises IncorrectVariableName
+        exception if first character is a digit.
+        """
         first_char_of_token = self.tokenizer.token[0]
         if not first_char_of_token.isdigit():
             self._eat(self.tokenizer.token)
@@ -85,7 +96,10 @@ class CompilationEngine:
                 "First character of the variable cannot be a digit!"
             )
 
-    def _compile_subroutine_dec(self):
+    def _compile_subroutine_dec(self) -> None:
+        """
+        Compiles a subroutine declaration.
+        """
         while self.tokenizer.token in {"constructor", "function", "method"}:
             self.file_obj.write(" " * self.indent + "<subroutineDec>\n")
             self._increase_indent()
@@ -102,7 +116,10 @@ class CompilationEngine:
             self._decrease_indent()
             self.file_obj.write(" " * self.indent + "</subroutineDec>\n")
 
-    def _compile_parameter_list(self):
+    def _compile_parameter_list(self) -> None:
+        """
+        Compiles parameter list.
+        """
         self.file_obj.write(" " * self.indent + "<parameterList>\n")
         if self.tokenizer.token != ")":
             self._increase_indent()
@@ -115,7 +132,11 @@ class CompilationEngine:
             self._decrease_indent()
         self.file_obj.write(" " * self.indent + "</parameterList>\n")
 
-    def _compile_subroutine_name(self):
+    def _compile_subroutine_name(self) -> None:
+        """
+        Compiles subroutine name.
+        Raises IncorrectVariableName if first character is a digit.
+        """
         first_char_of_token = self.tokenizer.token[0]
         if not first_char_of_token.isdigit():
             self._eat(self.tokenizer.token)
@@ -124,7 +145,10 @@ class CompilationEngine:
                 "First character of the subroutine cannot be a digit!"
             )
 
-    def _compile_subroutine_body(self):
+    def _compile_subroutine_body(self) -> None:
+        """
+        Compiles subroutine body.
+        """
         self.file_obj.write(" " * self.indent + "<subroutineBody>\n")
         self._increase_indent()
         self._eat("{")
@@ -135,7 +159,10 @@ class CompilationEngine:
         self._decrease_indent()
         self.file_obj.write(" " * self.indent + "</subroutineBody>\n")
 
-    def _compile_subroutine_call(self):
+    def _compile_subroutine_call(self) -> None:
+        """
+        Compiles subroutine call.
+        """
         self._eat(self.tokenizer.token)
         if self.tokenizer.token == ".":
             self._eat(".")
@@ -152,7 +179,10 @@ class CompilationEngine:
             self.compile_expression()
             self._eat("]")
 
-    def _compile_expression_list(self):
+    def _compile_expression_list(self) -> None:
+        """
+        Compiles expression list.
+        """
         self.file_obj.write(" " * self.indent + "<expressionList>\n")
         self._increase_indent()
         if self.tokenizer.token != ")":
@@ -163,7 +193,10 @@ class CompilationEngine:
         self._decrease_indent()
         self.file_obj.write(" " * self.indent + "</expressionList>\n")
 
-    def _compile_var_dec(self):
+    def _compile_var_dec(self) -> None:
+        """
+        Compiles variable declaration.
+        """
         self.file_obj.write(" " * self.indent + "<varDec>\n")
         self._increase_indent()
         self._eat("var")
@@ -176,7 +209,10 @@ class CompilationEngine:
         self._decrease_indent()
         self.file_obj.write(" " * self.indent + "</varDec>\n")
 
-    def _compile_statements(self):
+    def _compile_statements(self) -> None:
+        """
+        Compiles statements.
+        """
         self.file_obj.write(" " * self.indent + "<statements>\n")
         while self.tokenizer.token in {"let", "if", "while", "do", "return"}:
             if self.tokenizer.token == "let":
@@ -191,7 +227,10 @@ class CompilationEngine:
                 self._compile_if()
         self.file_obj.write(" " * self.indent + "</statements>\n")
 
-    def _compile_if(self):
+    def _compile_if(self) -> None:
+        """
+        Compiles if statement.
+        """
         self._increase_indent()
         self.file_obj.write(" " * self.indent + "<ifStatement>\n")
         self._increase_indent()
@@ -211,7 +250,10 @@ class CompilationEngine:
         self.file_obj.write(" " * self.indent + "</ifStatement>\n")
         self._decrease_indent()
 
-    def compile_let(self):
+    def compile_let(self) -> None:
+        """
+        Compiles let statements.
+        """
         self._increase_indent()
         self.file_obj.write(" " * self.indent + f"<letStatement>\n")
         self._increase_indent()
@@ -228,7 +270,10 @@ class CompilationEngine:
         self.file_obj.write(" " * self.indent + f"</letStatement>\n")
         self._decrease_indent()
 
-    def _compile_do(self):
+    def _compile_do(self) -> None:
+        """
+        Compiles do statements.
+        """
         self._increase_indent()
         self.file_obj.write(" " * self.indent + "<doStatement>\n")
         self._increase_indent()
@@ -239,7 +284,10 @@ class CompilationEngine:
         self.file_obj.write(" " * self.indent + "</doStatement>\n")
         self._decrease_indent()
 
-    def _compile_return(self):
+    def _compile_return(self) -> None:
+        """
+        Compiles return statements.
+        """
         self._increase_indent()
         self.file_obj.write(" " * self.indent + "<returnStatement>\n")
         self._increase_indent()
@@ -251,7 +299,10 @@ class CompilationEngine:
         self.file_obj.write(" " * self.indent + "</returnStatement>\n")
         self._decrease_indent()
 
-    def compile_while(self):
+    def compile_while(self) -> None:
+        """
+        Compiles while statements.
+        """
         self._increase_indent()
         self.file_obj.write(" " * self.indent + "<whileStatement>\n")
         self._increase_indent()
@@ -266,7 +317,10 @@ class CompilationEngine:
         self.file_obj.write(" " * self.indent + "</whileStatement>\n")
         self._decrease_indent()
 
-    def compile_expression(self):
+    def compile_expression(self) -> None:
+        """
+        Compiles expressions.
+        """
         self.file_obj.write(" " * self.indent + "<expression>\n")
         self._increase_indent()
         self.complile_term()
@@ -277,7 +331,10 @@ class CompilationEngine:
         self._decrease_indent()
         self.file_obj.write(" " * self.indent + "</expression>\n")
 
-    def complile_term(self):
+    def complile_term(self) -> None:
+        """
+        Compiles a term.
+        """
         self.file_obj.write(" " * self.indent + "<term>\n")
         self._increase_indent()
         varname = self.tokenizer.token
@@ -323,18 +380,25 @@ class CompilationEngine:
 
     def _eat(self, token: str, advance=True, classification=None) -> None:
         """
-        This method accepts a token for which it retrieves its classification
-        and writes the following line to the output xml file:
+        This method accepts a positional arg 'token' for which it retrieves its
+        classification and writes the following line to the output xml file:
 
         <token classification> token </token classification>
 
-        for example calling _eat('{') will result in writing the following
-        to the output xml file:
+        for example calling _eat('{') will write following line:
 
         <symbol> { </symbol>
 
-        In the end calls 'advance()' method of the tokenizer object to
-        retrieve next token from the tokenizer.
+        Users can also pass additional keyword arguments 'advance' to fetch
+        next token and 'classification' to provide own token classification used
+        when writing to the XML file.
+
+        if classification is not provided as an argument then _eat() method will call
+        get_token_classification() method of the tokenizer object to retrieve
+        one.
+
+        In order to produce HTML friendly XML file(s) some of the tokens must be
+        escaped to be displayed on a web page.
         """
         if not classification:
             classification = self.tokenizer.get_token_classification()
@@ -356,10 +420,14 @@ class CompilationEngine:
         if advance:
             self.tokenizer.advance()
 
-    def show_tokens(self):
+    def _show_tokens(self) -> None:
+        """
+        Prints list of tokens. This can be used for debugging purposes
+        in order to inspect output of the JackTokenizer.
+        """
         print(list(self.tokenizer.tokens))
 
-    def _increase_indent(self):
+    def _increase_indent(self) -> None:
         """
         Method used to increase indentation level in the
         the output xml file.
@@ -372,7 +440,7 @@ class CompilationEngine:
         """
         self.indent += 2
 
-    def _decrease_indent(self):
+    def _decrease_indent(self) -> None:
         """
         Method used to decrease indentation level in the
         output xml file.
@@ -386,6 +454,17 @@ class CompilationEngine:
         self.indent -= 2
 
     def __enter__(self):
+        """
+        Implements context management protocol.
+
+        Retrieve dirname and the basename of the input file passed to
+        tokenizer.
+
+        This method is used when a directory was supplied to the JackAnalyzer.
+        Creates an output name for each input file and opens a file in the
+        directory passed to JackAnalyzer. Each output file will have a name of
+        'output_name.xml'
+        """
         dirname = os.path.dirname(self.tokenizer.file_obj.name)
         basename = os.path.basename(self.tokenizer.file_obj.name)
         output_name = basename.split(".")[0]
@@ -395,5 +474,8 @@ class CompilationEngine:
         return self
 
     def __exit__(self, exc_type, exc_val, exc_tb):
+        """
+        Clean up by closing all references to the open file.
+        """
         if self.file_obj:
             self.file_obj.close()
