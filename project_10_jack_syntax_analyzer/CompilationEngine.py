@@ -20,13 +20,13 @@ class CompilationEngine:
         self.tokenizer = tokenizer
         self.indent = 0
 
-    def parse(self):
+    def parse(self) -> None:
         """
-        Parses given input stream of tokens into a XML parse tree.
+        Parses given stream of tokens and creates
+        XML parse tree.
         """
         while self.tokenizer.has_tokens():
-            if self.tokenizer.token == "class":
-                self._compile_class()
+            self._compile_class()
 
     def _compile_class(self):
         self.file_obj.write(" " * self.indent + "<class>\n")
