@@ -36,7 +36,7 @@ def main() -> None:
         for file_ in jack_files:
             tokenizer = JackTokenizer(file_)
             with CompilationEngine(tokenizer) as compiler:
-                compiler.show_tokens()
+                compiler.parse()
             tokenizer.file_obj.close()
     elif program_arg.endswith(".jack"):
         tokenizer = JackTokenizer(program_arg)
