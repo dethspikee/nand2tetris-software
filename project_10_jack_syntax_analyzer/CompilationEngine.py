@@ -43,7 +43,11 @@ class CompilationEngine:
         self._decrease_indent()
         self.file_obj.write(" " * self.indent + "</class>\n")
 
-    def _compile_class_name(self):
+    def _compile_class_name(self) -> None:
+        """
+        Compiles a class name. Raises IncorrectVariableName
+        exception if first character is a digit.
+        """
         first_char_of_token = self.tokenizer.token[0]
         if not first_char_of_token.isdigit():
             self._eat(self.tokenizer.token)
