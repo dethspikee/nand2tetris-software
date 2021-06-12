@@ -176,7 +176,7 @@ class CompilationEngine:
             self._eat(")")
         elif self.tokenizer.token == "[":
             self._eat("[")
-            self.compile_expression()
+            self._compile_expression()
             self._eat("]")
 
     def _compile_expression_list(self) -> None:
@@ -186,10 +186,10 @@ class CompilationEngine:
         self.file_obj.write(" " * self.indent + "<expressionList>\n")
         self._increase_indent()
         if self.tokenizer.token != ")":
-            self.compile_expression()
+            self._compile_expression()
             while self.tokenizer.token == ",":
                 self._eat(",")
-                self.compile_expression()
+                self._compile_expression()
         self._decrease_indent()
         self.file_obj.write(" " * self.indent + "</expressionList>\n")
 
@@ -216,13 +216,13 @@ class CompilationEngine:
         self.file_obj.write(" " * self.indent + "<statements>\n")
         while self.tokenizer.token in {"let", "if", "while", "do", "return"}:
             if self.tokenizer.token == "let":
-                self.compile_let()
+                self._compile_let()
             elif self.tokenizer.token == "do":
                 self._compile_do()
             elif self.tokenizer.token == "return":
                 self._compile_return()
             elif self.tokenizer.token == "while":
-                self.compile_while()
+                self._compile_while()
             elif self.tokenizer.token == "if":
                 self._compile_if()
         self.file_obj.write(" " * self.indent + "</statements>\n")
@@ -236,7 +236,7 @@ class CompilationEngine:
         self._increase_indent()
         self._eat("if")
         self._eat("(")
-        self.compile_expression()
+        self._compile_expression()
         self._eat(")")
         self._eat("{")
         self._compile_statements()
@@ -250,7 +250,7 @@ class CompilationEngine:
         self.file_obj.write(" " * self.indent + "</ifStatement>\n")
         self._decrease_indent()
 
-    def compile_let(self) -> None:
+    def _compile_let(self) -> None:
         """
         Compiles let statements.
         """
@@ -261,10 +261,10 @@ class CompilationEngine:
         self._compile_var_name()
         if self.tokenizer.token == "[":
             self._eat("[")
-            self.compile_expression()
+            self._compile_expression()
             self._eat("]")
         self._eat("=")
-        self.compile_expression()
+        self._compile_expression()
         self._eat(";")
         self._decrease_indent()
         self.file_obj.write(" " * self.indent + f"</letStatement>\n")
@@ -293,13 +293,13 @@ class CompilationEngine:
         self._increase_indent()
         self._eat("return")
         if self.tokenizer.token != ";":
-            self.compile_expression()
+            self._compile_expression()
         self._eat(";")
         self._decrease_indent()
         self.file_obj.write(" " * self.indent + "</returnStatement>\n")
         self._decrease_indent()
 
-    def compile_while(self) -> None:
+    def _compile_while(self) -> None:
         """
         Compiles while statements.
         """
@@ -308,7 +308,7 @@ class CompilationEngine:
         self._increase_indent()
         self._eat("while")
         self._eat("(")
-        self.compile_expression()
+        self._compile_expression()
         self._eat(")")
         self._eat("{")
         self._compile_statements()
@@ -317,21 +317,21 @@ class CompilationEngine:
         self.file_obj.write(" " * self.indent + "</whileStatement>\n")
         self._decrease_indent()
 
-    def compile_expression(self) -> None:
+    def _compile_expression(self) -> None:
         """
         Compiles expressions.
         """
         self.file_obj.write(" " * self.indent + "<expression>\n")
         self._increase_indent()
-        self.complile_term()
+        self._compile_term()
         op = self.tokenizer.token
         if op in {"+", "-", "*", "/", "&", "|", "<", ">", "="}:
             self._eat(op)
-            self.complile_term()
+            self._compile_term()
         self._decrease_indent()
         self.file_obj.write(" " * self.indent + "</expression>\n")
 
-    def complile_term(self) -> None:
+    def _compile_term(self) -> None:
         """
         Compiles a term.
         """
@@ -351,17 +351,17 @@ class CompilationEngine:
         elif varname == "(":
             self._eat("(", advance=False, classification=varname_classification)
             self.tokenizer.token = next_token
-            self.compile_expression()
+            self._compile_expression()
             self._eat(")")
         elif varname in {"-", "~"}:
             self._eat(varname, advance=False, classification=varname_classification)
             self.tokenizer.token = next_token
-            self.complile_term()
+            self._compile_term()
         elif varname_classification == "identifier" and next_token == "[":
             self._eat(varname, advance=False, classification="identifier")
             self.tokenizer.token = next_token
             self._eat("[")
-            self.compile_expression()
+            self._compile_expression()
             self._eat("]")
         elif varname_classification == "identifier" and next_token == ".":
             self._eat(varname, advance=False, classification="identifier")
