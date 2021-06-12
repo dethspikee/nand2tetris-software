@@ -28,7 +28,10 @@ class CompilationEngine:
         while self.tokenizer.has_tokens():
             self._compile_class()
 
-    def _compile_class(self):
+    def _compile_class(self) -> None:
+        """
+        Compiles a comlete class.
+        """
         self.file_obj.write(" " * self.indent + "<class>\n")
         self._increase_indent()
         self._eat("class")
