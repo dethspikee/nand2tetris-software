@@ -274,24 +274,47 @@ class CompilationEngine:
         self.file_obj.write(" " * self.indent + "<term>\n")
         self._increase_indent()
         varname = self.tokenizer.token
-        self._eat(varname)
-        if self.tokenizer.token == ".":
+        varname_classification = self.tokenizer.get_token_classification()
+        next_token = next(self.tokenizer.tokens)
+
+        if (
+            varname_classification == "integerConstant"
+            or varname_classification == "stringConstant"
+            or varname in {"true", "false", "null", "this"}
+        ):
+            self._eat(varname, advance=False, classification=varname_classification)
+            self.tokenizer.token = next_token
+        elif varname == "(":
+            self._eat("(", advance=False, classification=varname_classification)
+            self.tokenizer.token = next_token
+            self.compile_expression()
+            self._eat(")")
+        elif varname in {"-", "~"}:
+            self._eat(varname, advance=False, classification=varname_classification)
+            self.tokenizer.token = next_token
+            self.complile_term()
+        elif varname_classification == "identifier" and next_token == "[":
+            self._eat(varname, advance=False, classification="identifier")
+            self.tokenizer.token = next_token
+            self._eat("[")
+            self.compile_expression()
+            self._eat("]")
+        elif varname_classification == "identifier" and next_token == ".":
+            self._eat(varname, advance=False, classification="identifier")
+            self.tokenizer.token = next_token
             self._eat(".")
             self._compile_subroutine_name()
             self._eat("(")
             self._compile_expression_list()
             self._eat(")")
-        elif self.tokenizer.token == "(":
-            self.compile_expression()
-            self._eat(")")
-        elif self.tokenizer.token == "[":
-            self._eat("[")
-            self.compile_expression()
-            self._eat("]")
+        elif varname_classification == "identifier":
+            self._eat(varname, advance=False, classification="identifier")
+            self.tokenizer.token = next_token
+
         self._decrease_indent()
         self.file_obj.write(" " * self.indent + "</term>\n")
 
-    def _eat(self, token: str) -> None:
+    def _eat(self, token: str, advance=True, classification=None) -> None:
         """
         This method accepts a token for which it retrieves its classification
         and writes the following line to the output xml file:
@@ -306,7 +329,9 @@ class CompilationEngine:
         In the end calls 'advance()' method of the tokenizer object to
         retrieve next token from the tokenizer.
         """
-        classification = self.tokenizer.get_token_classification()
+        if not classification:
+            classification = self.tokenizer.get_token_classification()
+
         if classification == "stringConstant":
             token = token.replace('"', "").strip()
         elif token == "<":
@@ -320,7 +345,9 @@ class CompilationEngine:
         self.file_obj.write(" " * self.indent + f"<{classification}>")
         self.file_obj.write(f" {token} ")
         self.file_obj.write(f"</{classification}>\n")
-        self.tokenizer.advance()
+
+        if advance:
+            self.tokenizer.advance()
 
     def show_tokens(self):
         print(list(self.tokenizer.tokens))
@@ -352,9 +379,12 @@ class CompilationEngine:
         self.indent -= 2
 
     def __enter__(self):
+        dirname = os.path.dirname(self.tokenizer.file_obj.name)
         basename = os.path.basename(self.tokenizer.file_obj.name)
         output_name = basename.split(".")[0]
-        self.file_obj = open(f"{output_name}.xml", "wt", encoding="utf-8")
+        self.file_obj = open(
+            f"{os.path.join(dirname, output_name)}.xml", "wt", encoding="utf-8"
+        )
         return self
 
     def __exit__(self, exc_type, exc_val, exc_tb):
