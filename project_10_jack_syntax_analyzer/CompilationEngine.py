@@ -371,6 +371,12 @@ class CompilationEngine:
             self._eat("(")
             self._compile_expression_list()
             self._eat(")")
+        elif varname_classification == 'identifier' and next_token == '(':
+            self._eat(varname, advance=False, classification='identifier')
+            self.tokenizer.token = next_token
+            self._eat('(')
+            self._compile_expression_list()
+            self._eat(')')
         elif varname_classification == "identifier":
             self._eat(varname, advance=False, classification="identifier")
             self.tokenizer.token = next_token
