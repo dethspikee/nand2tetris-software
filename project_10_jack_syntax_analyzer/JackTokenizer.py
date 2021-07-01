@@ -55,7 +55,7 @@ class JackTokenizer:
         Tokenize (generate tokens from) the input
         stream. Return list of tokens.
         """
-        strings = r"\"(.+?)\""
+        strings = r"\"(.*?)\""
         names = r"[a-zA-Z_][a-zA-Z_0-9]*"
         numbers = r"\d+"
         whitespace = r"(?P<WHITESPACE>)\s+"
