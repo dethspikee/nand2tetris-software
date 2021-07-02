@@ -21,6 +21,7 @@ class CompilationEngine:
         self.indent = 0
         self.class_symbol_table = SymbolTable()
         self.routine_symbol_table = SymbolTable()
+        self.class_name = ''
 
     def parse(self) -> None:
         """
@@ -37,6 +38,7 @@ class CompilationEngine:
         self.file_obj.write(" " * self.indent + "<class>\n")
         self._increase_indent()
         self._eat("class")
+        self.class_name = self.tokenizer.token
         self._compile_class_name()
         self._eat("{")
         self._compile_class_var_dec()
@@ -81,7 +83,6 @@ class CompilationEngine:
             self._eat(";")
             self._decrease_indent()
             self.file_obj.write(" " * self.indent + "</classVarDec>\n")
-        self.class_symbol_table.show_table()
 
     def _compile_type(self) -> None:
         """
@@ -110,7 +111,11 @@ class CompilationEngine:
         Compiles a subroutine declaration.
         """
         while self.tokenizer.token in {"constructor", "function", "method"}:
+            self.routine_symbol_table.start_subroutine()
             self.file_obj.write(" " * self.indent + "<subroutineDec>\n")
+            if self.tokenizer.token == "method":
+                self.routine_symbol_table.define("this", self.class_name,
+                        "argument")
             self._increase_indent()
             self._eat(self.tokenizer.token)
             if self.tokenizer.token == "void":
@@ -122,6 +127,7 @@ class CompilationEngine:
             self._compile_parameter_list()
             self._eat(")")
             self._compile_subroutine_body()
+            self.routine_symbol_table.show_table()
             self._decrease_indent()
             self.file_obj.write(" " * self.indent + "</subroutineDec>\n")
 
@@ -131,13 +137,20 @@ class CompilationEngine:
         """
         self.file_obj.write(" " * self.indent + "<parameterList>\n")
         if self.tokenizer.token != ")":
+            kind = 'argument'
             self._increase_indent()
+            type = self.tokenizer.token
             self._compile_type()
+            name = self.tokenizer.token
+            self.routine_symbol_table.define(name, type, kind)
             self._compile_var_name()
             while self.tokenizer.token == ",":
                 self._eat(",")
+                type = self.tokenizer.token
                 self._compile_type()
+                name = self.tokenizer.token
                 self._compile_var_name()
+                self.routine_symbol_table.define(name, type, kind)
             self._decrease_indent()
         self.file_obj.write(" " * self.indent + "</parameterList>\n")
 
@@ -208,12 +221,18 @@ class CompilationEngine:
         """
         self.file_obj.write(" " * self.indent + "<varDec>\n")
         self._increase_indent()
+        kind = self.tokenizer.token
         self._eat("var")
+        type = self.tokenizer.token
         self._compile_type()
+        name = self.tokenizer.token
         self._compile_var_name()
+        self.routine_symbol_table.define(name, type, kind)
         while self.tokenizer.token == ",":
             self._eat(",")
+            name = self.tokenizer.token
             self._compile_var_name()
+            self.routine_symbol_table.define(name, type, kind)
         self._eat(";")
         self._decrease_indent()
         self.file_obj.write(" " * self.indent + "</varDec>\n")
