@@ -1,4 +1,6 @@
 from typing import Union
+from collections import namedtuple
+import pprint
 
 
 class SymbolTable:
@@ -7,6 +9,7 @@ class SymbolTable:
         Creates a new empty symbol table.
         """
         self.table = dict()
+        self.identifier = namedtuple("Identifier", ["name", "type", "kind", "index"])
     
     def start_subroutine(self) -> None:
         """
@@ -24,7 +27,12 @@ class SymbolTable:
         while ARG and VAR identifiers have a subroutine
         scope.
         """
-        print(name, type, kind)
+        if name in self.table:
+            # name already defined and in symbol table, throw error?
+            pass
+        else:
+            count = self.var_count(kind)
+            self.table[name] = self.identifier(name, type, kind, count)
 
     def var_count(self, kind: str) -> int:
         """
@@ -32,7 +40,11 @@ class SymbolTable:
         given kind already defined in the current
         scope.
         """
-        pass
+        count = 0
+        for var in self.table.values():
+            if var.kind == kind:
+                count += 1
+        return count
 
     def kind_of(self, name: str) -> Union[str, None]:
         """
@@ -56,3 +68,10 @@ class SymbolTable:
         named identifier.
         """
         pass
+
+    def show_table(self) -> None:
+        """
+        For debugging purposes print state
+        of current symbol table to STDOUT.
+        """
+        pprint.pprint(self.table)
