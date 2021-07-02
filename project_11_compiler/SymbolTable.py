@@ -17,7 +17,7 @@ class SymbolTable:
         (i.e., resets the subroutine's
         symbol table).
         """
-        pass
+        self.table.clear()
 
     def define(self, name: str, type: str, kind: str) -> None:
         """
