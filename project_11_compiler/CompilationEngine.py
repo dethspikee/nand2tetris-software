@@ -31,6 +31,9 @@ class CompilationEngine:
         while self.tokenizer.has_tokens():
             self._compile_class()
 
+        self.class_symbol_table.show_table()
+        self.routine_symbol_table.show_table()
+
     def _compile_class(self) -> None:
         """
         Compiles a comlete class.
@@ -54,7 +57,7 @@ class CompilationEngine:
         """
         first_char_of_token = self.tokenizer.token[0]
         if not first_char_of_token.isdigit():
-            self._eat(self.tokenizer.token)
+            self._eat(self.tokenizer.token, category="class")
         else:
             raise IncorrectVariableName(
                 "First character of the class cannot be a digit!"
@@ -73,13 +76,13 @@ class CompilationEngine:
             type = self.tokenizer.token
             self._compile_type()
             name = self.tokenizer.token
-            self._compile_var_name()
             self.class_symbol_table.define(name, type, kind)
+            self._compile_var_name()
             while self.tokenizer.token == ",":
                 self._eat(",")
                 name = self.tokenizer.token
-                self._compile_var_name()
                 self.class_symbol_table.define(name, type, kind)
+                self._compile_var_name()
             self._eat(";")
             self._decrease_indent()
             self.file_obj.write(" " * self.indent + "</classVarDec>\n")
@@ -127,7 +130,6 @@ class CompilationEngine:
             self._compile_parameter_list()
             self._eat(")")
             self._compile_subroutine_body()
-            self.routine_symbol_table.show_table()
             self._decrease_indent()
             self.file_obj.write(" " * self.indent + "</subroutineDec>\n")
 
@@ -149,8 +151,8 @@ class CompilationEngine:
                 type = self.tokenizer.token
                 self._compile_type()
                 name = self.tokenizer.token
-                self._compile_var_name()
                 self.routine_symbol_table.define(name, type, kind)
+                self._compile_var_name()
             self._decrease_indent()
         self.file_obj.write(" " * self.indent + "</parameterList>\n")
 
@@ -161,7 +163,7 @@ class CompilationEngine:
         """
         first_char_of_token = self.tokenizer.token[0]
         if not first_char_of_token.isdigit():
-            self._eat(self.tokenizer.token)
+            self._eat(self.tokenizer.token, category="subroutine")
         else:
             raise IncorrectVariableName(
                 "First character of the subroutine cannot be a digit!"
@@ -226,13 +228,13 @@ class CompilationEngine:
         type = self.tokenizer.token
         self._compile_type()
         name = self.tokenizer.token
-        self._compile_var_name()
         self.routine_symbol_table.define(name, type, kind)
+        self._compile_var_name()
         while self.tokenizer.token == ",":
             self._eat(",")
             name = self.tokenizer.token
-            self._compile_var_name()
             self.routine_symbol_table.define(name, type, kind)
+            self._compile_var_name()
         self._eat(";")
         self._decrease_indent()
         self.file_obj.write(" " * self.indent + "</varDec>\n")
@@ -412,7 +414,7 @@ class CompilationEngine:
         self._decrease_indent()
         self.file_obj.write(" " * self.indent + "</term>\n")
 
-    def _eat(self, token: str, advance=True, classification=None) -> None:
+    def _eat(self, token: str, advance=True, classification=None, **kwargs) -> None:
         """
         This method accepts a positional arg 'token' for which it retrieves its
         classification and writes the following line to the output xml file:
@@ -447,6 +449,14 @@ class CompilationEngine:
             token = "&quot;"
         elif token == "&":
             token = "&amp;"
+
+        if classification == "identifier":
+            category = self.class_symbol_table.kind_of(token) or \
+                    self.routine_symbol_table.kind_of(token) or \
+                    kwargs["category"]
+            #print(token, category)
+
+
         self.file_obj.write(" " * self.indent + f"<{classification}>")
         self.file_obj.write(f" {token} ")
         self.file_obj.write(f"</{classification}>\n")
