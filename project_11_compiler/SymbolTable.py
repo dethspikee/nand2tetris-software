@@ -53,7 +53,10 @@ class SymbolTable:
         If the identifier is unknown in
         the current scope, returns None.
         """
-        pass
+        try:
+            return self.table[name].kind
+        except KeyError:
+            return None
 
     def type_of(self, name: str) -> str:
         """
@@ -67,7 +70,7 @@ class SymbolTable:
         Returns the index assigned to the 
         named identifier.
         """
-        pass
+        return self.table[name].index
 
     def show_table(self) -> None:
         """
