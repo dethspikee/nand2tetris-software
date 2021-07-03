@@ -32,7 +32,7 @@ class SymbolTable:
             pass
         else:
             count = self.var_count(kind)
-            self.table[name] = self.identifier(name, type, kind, count)
+            self.table[name] = self.identifier(name, type, kind, str(count))
 
     def var_count(self, kind: str) -> int:
         """
@@ -65,12 +65,22 @@ class SymbolTable:
         """
         pass
 
-    def index_of(self, name: str) -> int:
+    def index_of(self, name: str) -> Union[None, int]:
         """
         Returns the index assigned to the 
         named identifier.
         """
-        return self.table[name].index
+        record = self.table.get(name, None)
+        if not record:
+            return None
+        return record.index
+
+    def empty(self) -> bool:
+        """
+        Returns True if symbol table
+        is empty, False otherwise.
+        """
+        return not bool(self.table)
 
     def show_table(self) -> None:
         """
