@@ -186,18 +186,25 @@ class CompilationEngine:
         """
         Compiles subroutine call.
         """
-        self._eat(self.tokenizer.token, category="", meaning="expression")
-        if self.tokenizer.token == ".":
+        token = self.tokenizer.token
+        next_token = next(self.tokenizer.tokens)
+        if next_token == ".":
+            self._eat(token, advance=False, category="class", meaning="expression")
+            self.tokenizer.token = next_token
             self._eat(".")
             self._compile_subroutine_name()
             self._eat("(")
             self._compile_expression_list()
             self._eat(")")
-        elif self.tokenizer.token == "(":
+        elif next_token == "(":
+            self._eat(token, advance=False, category="class", meaning="expression")
+            self.tokenizer.token = next_token
             self._eat("(")
             self._compile_expression_list()
             self._eat(")")
-        elif self.tokenizer.token == "[":
+        elif next_token == "[":
+            self._eat(token, advance=False, category="class", meaning="expression")
+            self.tokenizer.token = next_token
             self._eat("[")
             self._compile_expression()
             self._eat("]")
@@ -441,6 +448,7 @@ class CompilationEngine:
         """
         if not classification:
             classification = self.tokenizer.get_token_classification()
+            print(token, classification)
 
         if classification == "stringConstant":
             token = token.replace('"', "").strip()
@@ -463,24 +471,25 @@ class CompilationEngine:
             if category not in {"class", "subroutine"}:
                 running_index = self.class_symbol_table.index_of(token) or \
                         self.routine_symbol_table.index_of(token)
-                self.file_obj.write(" " * self.indent + f"<{category}, "
-                        f"{running_index}, {meaning}>")
+                self.file_obj.write(" " * self.indent + f'<{classification} category=\"{category}\" '
+                        f'index="{running_index}" meaning="{meaning}">')
                 self.file_obj.write(f" {token} ")
-                self.file_obj.write(f"</{category}, {running_index}, {meaning}>\n")
+                self.file_obj.write(f"</{classification}>\n")
             else:
                 self.file_obj.write(" " * self.indent + f"<{category}, {meaning}>")
                 self.file_obj.write(f" {token} ")
-                self.file_obj.write(f"</{category}, {meaning}>\n")
+                self.file_obj.write(f"</{classification}>\n")
 
         elif classification == "identifier":
+            print(token, classification)
             category = kwargs["category"]
-            self.file_obj.write(" " * self.indent + f"<{classification}, {category}>")
+            self.file_obj.write(" " * self.indent + f'<{classification} category="{category}">')
             self.file_obj.write(f" {token} ")
-            self.file_obj.write(f"</{classification}, {category}>\n")
+            self.file_obj.write(f"</{classification}>\n")
         else:
             self.file_obj.write(" " * self.indent + f"<{classification}>")
             self.file_obj.write(f" {token} ")
-            self.file_obj.write(f"</{classification}\n")
+            self.file_obj.write(f"</{classification}>\n")
 
 
         if advance:
