@@ -63,7 +63,7 @@ class SymbolTable:
         Returns the type of the named
         identifier in the current scope.
         """
-        pass
+        return self.table[name].type
 
     def index_of(self, name: str) -> Union[None, int]:
         """
