@@ -22,7 +22,8 @@ class CompilationEngine:
         self.indent = 0
         self.class_symbol_table = SymbolTable()
         self.routine_symbol_table = SymbolTable()
-        self.class_name = ''
+        self.class_name = ""
+        self.function_name = ""
 
     def parse(self) -> None:
         """
@@ -74,7 +75,6 @@ class CompilationEngine:
             self._eat(self.tokenizer.token)
             type = self.tokenizer.token
             self._compile_type()
-            name = self.tokenizer.token
             self.class_symbol_table.define(name, type, kind)
             self._compile_var_name(meaning="define")
             while self.tokenizer.token == ",":
@@ -124,6 +124,7 @@ class CompilationEngine:
                 self._eat("void")
             else:
                 self._compile_type()
+            self.function_name = self.tokenizer.token
             self._compile_subroutine_name()
             self._eat("(")
             self._compile_parameter_list()
@@ -198,6 +199,7 @@ class CompilationEngine:
             self._compile_expression_list()
             self._eat(")")
         elif next_token == "(":
+            function_name = token
             self._eat(token, advance=False, category="class", meaning="expression")
             self.tokenizer.token = next_token
             self._eat("(")
@@ -245,6 +247,8 @@ class CompilationEngine:
         self._eat(";")
         self._decrease_indent()
         self.file_obj.write(" " * self.indent + "</varDec>\n")
+        self.vmwriter.write_function(self.function_name,
+                self.routine_symbol_table.var_count("local"))
 
     def _compile_statements(self) -> None:
         """
@@ -295,7 +299,10 @@ class CompilationEngine:
         self.file_obj.write(" " * self.indent + f"<letStatement>\n")
         self._increase_indent()
         self._eat("let")
-        self._compile_var_name(meaning="expression")
+        varname = self.tokenizer.token
+        varname_index = self._search_for_index(varname)
+        varname_category = self._search_for_category(varname)
+        self._compile_var_name(meaning="assign")
         if self.tokenizer.token == "[":
             self._eat("[")
             self._compile_expression()
@@ -304,6 +311,7 @@ class CompilationEngine:
         self._compile_expression()
         self._eat(";")
         self._decrease_indent()
+        self.vmwriter.write_pop(varname_category, varname_index)
         self.file_obj.write(" " * self.indent + f"</letStatement>\n")
         self._decrease_indent()
 
@@ -365,6 +373,7 @@ class CompilationEngine:
         if op in {"+", "-", "*", "/", "&", "|", "<", ">", "="}:
             self._eat(op)
             self._compile_term()
+            self.vmwriter.write_arithmetic(op)
         self._decrease_indent()
         self.file_obj.write(" " * self.indent + "</expression>\n")
 
@@ -477,7 +486,7 @@ class CompilationEngine:
 
     def _handle_identifier(self, token, classification, **kwargs):
         if token in (self.routine_symbol_table.table or self.class_symbol_table.table):
-            meaning = kwargs["meaning"]
+            meaning = kwargs.get("meaning")
             category = self.class_symbol_table.kind_of(token) or \
                     self.routine_symbol_table.kind_of(token) or \
                     kwargs["category"]
@@ -487,11 +496,21 @@ class CompilationEngine:
                     f'index="{running_index}" meaning="{meaning}">')
             self.file_obj.write(f" {token} ")
             self.file_obj.write(f"</{classification}>\n")
+            if meaning == "expression":
+                self.vmwriter.write_push(category, int(running_index))
         else:
             category = kwargs["category"]
             self.file_obj.write(" " * self.indent + f'<{classification} category="{category}">')
             self.file_obj.write(f" {token} ")
             self.file_obj.write(f"</{classification}>\n")
+
+    def _search_for_index(self, varname: str):
+        return self.routine_symbol_table.index_of(varname) or \
+            self.class_symbol_table.index_of(varname)
+
+    def _search_for_category(self, varname: str):
+        return self.routine_symbol_table.kind_of(varname) or \
+            self.class_symbol_table.kind_of(varname)
 
     def _show_tokens(self) -> None:
         """
