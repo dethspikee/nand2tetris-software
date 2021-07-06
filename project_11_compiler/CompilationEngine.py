@@ -1,5 +1,6 @@
 import os
 
+from VMWriter import VMWriter
 from SymbolTable import SymbolTable
 from exceptions import IncorrectVariableName
 
@@ -229,7 +230,7 @@ class CompilationEngine:
         """
         self.file_obj.write(" " * self.indent + "<varDec>\n")
         self._increase_indent()
-        kind = self.tokenizer.token
+        kind = "local"
         self._eat("var")
         type = self.tokenizer.token
         self._compile_type()
@@ -448,7 +449,6 @@ class CompilationEngine:
         """
         if not classification:
             classification = self.tokenizer.get_token_classification()
-            print(token, classification)
 
         if classification == "stringConstant":
             token = token.replace('"', "").strip()
