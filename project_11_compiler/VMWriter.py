@@ -53,7 +53,7 @@ class VMWriter:
         """
         Wrotes a VM function command.
         """
-        pass
+        self.fp.write(f"function {name} {nLocal}\n")
 
     def write_return(self) -> None:
         """
