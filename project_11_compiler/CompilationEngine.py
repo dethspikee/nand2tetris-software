@@ -378,9 +378,12 @@ class CompilationEngine:
         varname_classification = self.tokenizer.get_token_classification()
         next_token = next(self.tokenizer.tokens)
 
-        if (
-            varname_classification == "integerConstant"
-            or varname_classification == "stringConstant"
+        if varname_classification == "integerConstant":
+            self.vmwriter.write_push("const", int(varname))
+            self._eat(varname, advance=False, classification=varname_classification)
+            self.tokenizer.token = next_token
+        elif ( 
+            varname_classification == "stringConstant"
             or varname in {"true", "false", "null", "this"}
         ):
             self._eat(varname, advance=False, classification=varname_classification)
@@ -461,31 +464,8 @@ class CompilationEngine:
         elif token == "&":
             token = "&amp;"
 
-        if classification == "identifier" and (token in \
-            self.routine_symbol_table.table or self.class_symbol_table.table):
-            running_index = ''
-            meaning = kwargs["meaning"]
-            category = self.class_symbol_table.kind_of(token) or \
-                    self.routine_symbol_table.kind_of(token) or \
-                    kwargs["category"]
-            if category not in {"class", "subroutine"}:
-                running_index = self.class_symbol_table.index_of(token) or \
-                        self.routine_symbol_table.index_of(token)
-                self.file_obj.write(" " * self.indent + f'<{classification} category=\"{category}\" '
-                        f'index="{running_index}" meaning="{meaning}">')
-                self.file_obj.write(f" {token} ")
-                self.file_obj.write(f"</{classification}>\n")
-            else:
-                self.file_obj.write(" " * self.indent + f"<{category}, {meaning}>")
-                self.file_obj.write(f" {token} ")
-                self.file_obj.write(f"</{classification}>\n")
-
-        elif classification == "identifier":
-            print(token, classification)
-            category = kwargs["category"]
-            self.file_obj.write(" " * self.indent + f'<{classification} category="{category}">')
-            self.file_obj.write(f" {token} ")
-            self.file_obj.write(f"</{classification}>\n")
+        if classification == "identifier":
+            self._handle_identifier(token, classification, **kwargs)
         else:
             self.file_obj.write(" " * self.indent + f"<{classification}>")
             self.file_obj.write(f" {token} ")
@@ -494,6 +474,24 @@ class CompilationEngine:
 
         if advance:
             self.tokenizer.advance()
+
+    def _handle_identifier(self, token, classification, **kwargs):
+        if token in (self.routine_symbol_table.table or self.class_symbol_table.table):
+            meaning = kwargs["meaning"]
+            category = self.class_symbol_table.kind_of(token) or \
+                    self.routine_symbol_table.kind_of(token) or \
+                    kwargs["category"]
+            running_index = self.class_symbol_table.index_of(token) or \
+                    self.routine_symbol_table.index_of(token)
+            self.file_obj.write(" " * self.indent + f'<{classification} category=\"{category}\" '
+                    f'index="{running_index}" meaning="{meaning}">')
+            self.file_obj.write(f" {token} ")
+            self.file_obj.write(f"</{classification}>\n")
+        else:
+            category = kwargs["category"]
+            self.file_obj.write(" " * self.indent + f'<{classification} category="{category}">')
+            self.file_obj.write(f" {token} ")
+            self.file_obj.write(f"</{classification}>\n")
 
     def _show_tokens(self) -> None:
         """
@@ -546,6 +544,7 @@ class CompilationEngine:
         self.file_obj = open(
             f"{os.path.join(dirname, output_name)}.xml", "wt", encoding="utf-8"
         )
+        self.vmwriter = VMWriter(dirname, output_name)
         return self
 
     def __exit__(self, exc_type, exc_val, exc_tb):
@@ -554,3 +553,5 @@ class CompilationEngine:
         """
         if self.file_obj:
             self.file_obj.close()
+        if self.vmwriter.fp:
+            self.vmwriter.fp.close()
