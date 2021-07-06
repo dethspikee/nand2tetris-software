@@ -1,5 +1,6 @@
 import os
 
+
 class VMWriter:
     def __init__(self, dirname, output_name):
         self.fp = open(
@@ -10,20 +11,19 @@ class VMWriter:
         """
         Writes a VM push command.
         """
-        print("pushing: ")
-        print(segment, index)
+        self.fp.write(f"push {segment} {index}\n")
 
     def write_pop(self, segment: str, index: int) -> None:
         """
         Writes a VM pop command.
         """
-        pass
+        self.fp.write(f"pop {segment} {index}\n")
 
     def write_arithmetic(self, command: str) -> None:
         """
         Writes a VM arithmetic-logical command.
         """
-        pass
+        self.fp.write(f"{command}\n")
 
     def write_label(self, label: str) -> None:
         """
