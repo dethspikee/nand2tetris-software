@@ -1,62 +1,67 @@
-class VMWriter:
-    def __init__(self, input_stream):
-        self.fp = input_stream
+import os
 
-    def write_push(segment: str, index: int) -> None:
+class VMWriter:
+    def __init__(self, dirname, output_name):
+        self.fp = open(
+            f"{os.path.join(dirname, output_name)}.vm", "wt", encoding="utf-8"
+        )
+
+    def write_push(self, segment: str, index: int) -> None:
         """
         Writes a VM push command.
         """
-        pass
+        print("pushing: ")
+        print(segment, index)
 
-    def write_pop(segment: str, index: int) -> None:
+    def write_pop(self, segment: str, index: int) -> None:
         """
         Writes a VM pop command.
         """
         pass
 
-    def write_arithmetic(command: str) -> None:
+    def write_arithmetic(self, command: str) -> None:
         """
         Writes a VM arithmetic-logical command.
         """
         pass
 
-    def write_label(label: str) -> None:
+    def write_label(self, label: str) -> None:
         """
         Writes a VM label command.
         """
         pass
     
-    def write_goto(label: str) -> None:
+    def write_goto(self, label: str) -> None:
         """
         Writes a VM goto command.
         """
         pass
 
-    def write_if(label: str) -> None:
+    def write_if(self, label: str) -> None:
         """
         Writes a VM if-goto command.
         """
         pass
 
-    def write_call(name: str, nArgs: int) -> None:
+    def write_call(self, name: str, nArgs: int) -> None:
         """
         Writes a VM call command.
         """
         pass
 
-    def write_function(name: str, nLocal: str) -> None:
+    def write_function(self, name: str, nLocal: str) -> None:
         """
         Wrotes a VM function command.
         """
         pass
 
-    def write_return() -> None:
+    def write_return(self) -> None:
         """
         Writes a VM return command.
         """
         pass
     
-    def close() -> None:
+    def close(self) -> None:
         """
         Closes the output file.
         """
