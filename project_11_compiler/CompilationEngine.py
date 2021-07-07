@@ -157,14 +157,17 @@ class CompilationEngine:
             self._decrease_indent()
         self.file_obj.write(" " * self.indent + "</parameterList>\n")
 
-    def _compile_subroutine_name(self) -> None:
+    def _compile_subroutine_name(self, method=False) -> None:
         """
         Compiles subroutine name.
         Raises IncorrectVariableName if first character is a digit.
         """
         first_char_of_token = self.tokenizer.token[0]
         if not first_char_of_token.isdigit():
-            self._eat(self.tokenizer.token, category="subroutine", meaning="expression")
+            if not method:
+                self._eat(self.tokenizer.token, category="subroutine", meaning="expression")
+            else:
+                self._eat(self.tokenizer.token, category="method", meaning="expression")
         else:
             raise IncorrectVariableName(
                 "First character of the subroutine cannot be a digit!"
@@ -192,13 +195,23 @@ class CompilationEngine:
         """
         token = self.tokenizer.token
         next_token = next(self.tokenizer.tokens)
-        if next_token == ".":
+        if next_token == "." and token in self.routine_symbol_table.table:
+            self.class_name = token
+            self._eat(token, advance=False, category="object", meaning="expression")
+            self.tokenizer.token = next_token
+            self._eat(".")
+            self.function_name = self.tokenizer.token
+            self._compile_subroutine_name()
+            self._eat("(")
+            self._compile_expression_list()
+            self._eat(")")
+        elif next_token == "." and token not in self.routine_symbol_table.table:
             self.class_name = token
             self._eat(token, advance=False, category="class", meaning="expression")
             self.tokenizer.token = next_token
             self._eat(".")
             self.function_name = self.tokenizer.token
-            self._compile_subroutine_name()
+            self._compile_subroutine_name(method=True)
             self._eat("(")
             self._compile_expression_list()
             self._eat(")")
