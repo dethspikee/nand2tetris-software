@@ -211,7 +211,7 @@ class CompilationEngine:
             self.tokenizer.token = next_token
             self._eat(".")
             self.function_name = self.tokenizer.token
-            self._compile_subroutine_name(method=True)
+            self._compile_subroutine_name(method=False)
             self._eat("(")
             self._compile_expression_list()
             self._eat(")")
