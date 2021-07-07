@@ -217,7 +217,7 @@ class CompilationEngine:
             self._eat(")")
         elif next_token == "(":
             function_name = token
-            self._eat(token, advance=False, category="class", meaning="expression")
+            self._eat(token, advance=False, category="method", meaning="expression")
             self.tokenizer.token = next_token
             self._eat("(")
             self._compile_expression_list()
