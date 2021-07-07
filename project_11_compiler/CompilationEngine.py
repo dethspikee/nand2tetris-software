@@ -124,7 +124,7 @@ class CompilationEngine:
                 self._eat("void")
             else:
                 self._compile_type()
-            self.function_name = self.tokenizer.token
+            self.function_name = f"{self.class_name}.{self.tokenizer.token}"
             self._compile_subroutine_name()
             self._eat("(")
             self._compile_parameter_list()
