@@ -23,7 +23,17 @@ class VMWriter:
         """
         Writes a VM arithmetic-logical command.
         """
-        self.fp.write(f"{command}\n")
+        if command == "*":
+            self.write_call("Math.mult", 2);
+        elif command == "/":
+            self.write_call("Math.divide", 2);
+        else:
+            commands = {
+                "+": "add",
+                "-": "sub",
+                "<": "le",
+            }
+            self.fp.write(f"{commands[command]}\n")
 
     def write_label(self, label: str) -> None:
         """
@@ -47,7 +57,7 @@ class VMWriter:
         """
         Writes a VM call command.
         """
-        pass
+        self.fp.write(f"call {name} {nArgs}\n")
 
     def write_function(self, name: str, nLocal: str) -> None:
         """
