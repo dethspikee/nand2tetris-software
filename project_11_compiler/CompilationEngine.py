@@ -179,6 +179,8 @@ class CompilationEngine:
         self._eat("{")
         while self.tokenizer.token == "var":
             self._compile_var_dec()
+        self.vmwriter.write_function(self.function_name,
+                self.routine_symbol_table.var_count("local"))
         self._compile_statements()
         self._eat("}")
         self._decrease_indent()
@@ -191,9 +193,11 @@ class CompilationEngine:
         token = self.tokenizer.token
         next_token = next(self.tokenizer.tokens)
         if next_token == ".":
+            self.class_name = token
             self._eat(token, advance=False, category="class", meaning="expression")
             self.tokenizer.token = next_token
             self._eat(".")
+            self.function_name = self.tokenizer.token
             self._compile_subroutine_name()
             self._eat("(")
             self._compile_expression_list()
@@ -247,8 +251,6 @@ class CompilationEngine:
         self._eat(";")
         self._decrease_indent()
         self.file_obj.write(" " * self.indent + "</varDec>\n")
-        self.vmwriter.write_function(self.function_name,
-                self.routine_symbol_table.var_count("local"))
 
     def _compile_statements(self) -> None:
         """
@@ -326,6 +328,7 @@ class CompilationEngine:
         self._compile_subroutine_call()
         self._eat(";")
         self._decrease_indent()
+        #self.vmwriter.write_call(f"{self.class_name}.{self.function_name}", 2)
         self.file_obj.write(" " * self.indent + "</doStatement>\n")
         self._decrease_indent()
 
