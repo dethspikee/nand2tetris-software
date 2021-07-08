@@ -470,6 +470,7 @@ class CompilationEngine:
             self._compile_expression()
             self._eat("]")
         elif varname_classification == "identifier" and next_token == ".":
+            self.class_name = varname
             self._eat(
                 varname,
                 advance=False,
@@ -479,10 +480,18 @@ class CompilationEngine:
             )
             self.tokenizer.token = next_token
             self._eat(".")
+            self.function_name = self.tokenizer.token
             self._compile_subroutine_name()
             self._eat("(")
             self._compile_expression_list()
             self._eat(")")
+            print("im here")
+            print("class name: ", self.class_name)
+            print("function name: ", self.function_name)
+            print("values pushed: ", self.items_pushed_on_stack)
+            self.vmwriter.write_call(f"{self.class_name}.{self.function_name}",
+                    self.items_pushed_on_stack)
+            self.items_pushed_on_stack = 0
         elif varname_classification == "identifier" and next_token == "(":
             self._eat(
                 varname,
