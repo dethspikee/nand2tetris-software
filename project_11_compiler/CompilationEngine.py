@@ -448,7 +448,11 @@ class CompilationEngine:
             self.tokenizer.token = next_token
             self._compile_expression()
             self._eat(")")
-        elif varname in {"-", "~"}:
+        elif varname == "-":
+            self._eat(varname, advance=False, classification=varname_classification)
+            self.tokenizer.token = next_token
+            self._compile_term()
+        elif varname == "~":
             self._eat(varname, advance=False, classification=varname_classification)
             self.tokenizer.token = next_token
             self._compile_term()
