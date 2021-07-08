@@ -117,8 +117,7 @@ class CompilationEngine:
             self.routine_symbol_table.start_subroutine()
             self.file_obj.write(" " * self.indent + "<subroutineDec>\n")
             if self.tokenizer.token == "method":
-                self.routine_symbol_table.define("this", self.class_name,
-                        "argument")
+                self.routine_symbol_table.define("this", self.class_name, "argument")
             self._increase_indent()
             self._eat(self.tokenizer.token)
             if self.tokenizer.token == "void":
@@ -141,7 +140,7 @@ class CompilationEngine:
         """
         self.file_obj.write(" " * self.indent + "<parameterList>\n")
         if self.tokenizer.token != ")":
-            kind = 'argument'
+            kind = "argument"
             self._increase_indent()
             type = self.tokenizer.token
             self._compile_type()
@@ -166,7 +165,9 @@ class CompilationEngine:
         first_char_of_token = self.tokenizer.token[0]
         if not first_char_of_token.isdigit():
             if not method:
-                self._eat(self.tokenizer.token, category="subroutine", meaning="expression")
+                self._eat(
+                    self.tokenizer.token, category="subroutine", meaning="expression"
+                )
             else:
                 self._eat(self.tokenizer.token, category="method", meaning="expression")
         else:
@@ -183,8 +184,9 @@ class CompilationEngine:
         self._eat("{")
         while self.tokenizer.token == "var":
             self._compile_var_dec()
-        self.vmwriter.write_function(self.function_name,
-                self.routine_symbol_table.var_count("local"))
+        self.vmwriter.write_function(
+            self.function_name, self.routine_symbol_table.var_count("local")
+        )
         self._compile_statements()
         self._eat("}")
         self._decrease_indent()
@@ -215,8 +217,9 @@ class CompilationEngine:
             self._compile_subroutine_name(method=False)
             self._eat("(")
             self._compile_expression_list()
-            self.vmwriter.write_call(f"{self.class_name}.{self.function_name}",
-                    self.items_pushed_on_stack)
+            self.vmwriter.write_call(
+                f"{self.class_name}.{self.function_name}", self.items_pushed_on_stack
+            )
             self.items_pushed_on_stack = 0
             self._eat(")")
         elif next_token == "(":
@@ -247,8 +250,12 @@ class CompilationEngine:
             self._increase_indent()
             print("adding this: ")
             self.routine_symbol_table.show_table()
-            self._eat("this", advance=False, classification="identifier",
-                     meaning="object reference")
+            self._eat(
+                "this",
+                advance=False,
+                classification="identifier",
+                meaning="object reference",
+            )
             self._decrease_indent()
             self.file_obj.write(" " * self.indent + "</expression>\n")
         if self.tokenizer.token != ")":
@@ -428,10 +435,12 @@ class CompilationEngine:
             self.vmwriter.write_push("constant", int(varname))
             self._eat(varname, advance=False, classification=varname_classification)
             self.tokenizer.token = next_token
-        elif ( 
-            varname_classification == "stringConstant"
-            or varname in {"true", "false", "null", "this"}
-        ):
+        elif varname_classification == "stringConstant" or varname in {
+            "true",
+            "false",
+            "null",
+            "this",
+        }:
             self._eat(varname, advance=False, classification=varname_classification)
             self.tokenizer.token = next_token
         elif varname == "(":
@@ -444,31 +453,51 @@ class CompilationEngine:
             self.tokenizer.token = next_token
             self._compile_term()
         elif varname_classification == "identifier" and next_token == "[":
-            self._eat(varname, advance=False, classification="identifier",
-                    category="variable", meaning="expression")
+            self._eat(
+                varname,
+                advance=False,
+                classification="identifier",
+                category="variable",
+                meaning="expression",
+            )
             self.tokenizer.token = next_token
             self._eat("[")
             self._compile_expression()
             self._eat("]")
         elif varname_classification == "identifier" and next_token == ".":
-            self._eat(varname, advance=False, classification="identifier",
-                    category="class", meaning="expression")
+            self._eat(
+                varname,
+                advance=False,
+                classification="identifier",
+                category="class",
+                meaning="expression",
+            )
             self.tokenizer.token = next_token
             self._eat(".")
             self._compile_subroutine_name()
             self._eat("(")
             self._compile_expression_list()
             self._eat(")")
-        elif varname_classification == 'identifier' and next_token == '(':
-            self._eat(varname, advance=False, classification='identifier',
-                    category="subroutine", meaning="expression")
+        elif varname_classification == "identifier" and next_token == "(":
+            self._eat(
+                varname,
+                advance=False,
+                classification="identifier",
+                category="subroutine",
+                meaning="expression",
+            )
             self.tokenizer.token = next_token
-            self._eat('(')
+            self._eat("(")
             self._compile_expression_list()
-            self._eat(')')
+            self._eat(")")
         elif varname_classification == "identifier":
-            self._eat(varname, advance=False, classification="identifier",
-                    category="", meaning="expression")
+            self._eat(
+                varname,
+                advance=False,
+                classification="identifier",
+                category="",
+                meaning="expression",
+            )
             self.tokenizer.token = next_token
 
         self._decrease_indent()
@@ -517,37 +546,45 @@ class CompilationEngine:
             self.file_obj.write(f" {token} ")
             self.file_obj.write(f"</{classification}>\n")
 
-
         if advance:
             self.tokenizer.advance()
 
     def _handle_identifier(self, token, classification, **kwargs):
         if token in (self.routine_symbol_table.table or self.class_symbol_table.table):
             meaning = kwargs.get("meaning")
-            category = self.class_symbol_table.kind_of(token) or \
-                    self.routine_symbol_table.kind_of(token) or \
-                    kwargs["category"]
-            running_index = self.class_symbol_table.index_of(token) or \
-                    self.routine_symbol_table.index_of(token)
-            self.file_obj.write(" " * self.indent + f'<{classification} category=\"{category}\" '
-                    f'index="{running_index}" meaning="{meaning}">')
+            category = (
+                self.class_symbol_table.kind_of(token)
+                or self.routine_symbol_table.kind_of(token)
+                or kwargs["category"]
+            )
+            running_index = self.class_symbol_table.index_of(
+                token
+            ) or self.routine_symbol_table.index_of(token)
+            self.file_obj.write(
+                " " * self.indent + f'<{classification} category="{category}" '
+                f'index="{running_index}" meaning="{meaning}">'
+            )
             self.file_obj.write(f" {token} ")
             self.file_obj.write(f"</{classification}>\n")
             if meaning == "expression":
                 self.vmwriter.write_push(category, int(running_index))
         else:
             category = kwargs["category"]
-            self.file_obj.write(" " * self.indent + f'<{classification} category="{category}">')
+            self.file_obj.write(
+                " " * self.indent + f'<{classification} category="{category}">'
+            )
             self.file_obj.write(f" {token} ")
             self.file_obj.write(f"</{classification}>\n")
 
     def _search_for_index(self, varname: str):
-        return self.routine_symbol_table.index_of(varname) or \
-            self.class_symbol_table.index_of(varname)
+        return self.routine_symbol_table.index_of(
+            varname
+        ) or self.class_symbol_table.index_of(varname)
 
     def _search_for_category(self, varname: str):
-        return self.routine_symbol_table.kind_of(varname) or \
-            self.class_symbol_table.kind_of(varname)
+        return self.routine_symbol_table.kind_of(
+            varname
+        ) or self.class_symbol_table.kind_of(varname)
 
     def _show_tokens(self) -> None:
         """
