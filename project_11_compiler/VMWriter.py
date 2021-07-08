@@ -35,6 +35,12 @@ class VMWriter:
             }
             self.fp.write(f"{commands[command]}\n")
 
+    def write_negation(self) -> None:
+        """
+        Todo
+        """
+        self.fp.write("neg\n")
+
     def write_label(self, label: str) -> None:
         """
         Writes a VM label command.

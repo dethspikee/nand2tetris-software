@@ -452,6 +452,7 @@ class CompilationEngine:
             self._eat(varname, advance=False, classification=varname_classification)
             self.tokenizer.token = next_token
             self._compile_term()
+            self.vmwriter.write_negation()
         elif varname == "~":
             self._eat(varname, advance=False, classification=varname_classification)
             self.tokenizer.token = next_token
