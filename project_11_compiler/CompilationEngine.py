@@ -24,6 +24,7 @@ class CompilationEngine:
         self.routine_symbol_table = SymbolTable()
         self.class_name = ""
         self.function_name = ""
+        self.items_pushed_on_stack = 0
 
     def parse(self) -> None:
         """
@@ -214,6 +215,9 @@ class CompilationEngine:
             self._compile_subroutine_name(method=False)
             self._eat("(")
             self._compile_expression_list()
+            self.vmwriter.write_call(f"{self.class_name}.{self.function_name}",
+                    self.items_pushed_on_stack)
+            self.items_pushed_on_stack = 0
             self._eat(")")
         elif next_token == "(":
             function_name = token
@@ -238,6 +242,7 @@ class CompilationEngine:
         if method:
             # since this is method call, push 'this' on top of stack
             # expression list
+            self.items_pushed_on_stack += 1
             self.file_obj.write(" " * self.indent + "<expression>\n")
             self._increase_indent()
             print("adding this: ")
@@ -247,9 +252,11 @@ class CompilationEngine:
             self._decrease_indent()
             self.file_obj.write(" " * self.indent + "</expression>\n")
         if self.tokenizer.token != ")":
+            self.items_pushed_on_stack += 1
             self._compile_expression()
             while self.tokenizer.token == ",":
                 self._eat(",")
+                self.items_pushed_on_stack += 1
                 self._compile_expression()
         self._decrease_indent()
         self.file_obj.write(" " * self.indent + "</expressionList>\n")
@@ -350,9 +357,9 @@ class CompilationEngine:
         self._increase_indent()
         self._eat("do")
         self._compile_subroutine_call()
+        self.vmwriter.write_pop("temp", 0)
         self._eat(";")
         self._decrease_indent()
-        #self.vmwriter.write_call(f"{self.class_name}.{self.function_name}", 2)
         self.file_obj.write(" " * self.indent + "</doStatement>\n")
         self._decrease_indent()
 
@@ -366,6 +373,9 @@ class CompilationEngine:
         self._eat("return")
         if self.tokenizer.token != ";":
             self._compile_expression()
+        else:
+            self.vmwriter.write_push("constant", 0)
+        self.vmwriter.write_return()
         self._eat(";")
         self._decrease_indent()
         self.file_obj.write(" " * self.indent + "</returnStatement>\n")
@@ -415,7 +425,7 @@ class CompilationEngine:
         next_token = next(self.tokenizer.tokens)
 
         if varname_classification == "integerConstant":
-            self.vmwriter.write_push("const", int(varname))
+            self.vmwriter.write_push("constant", int(varname))
             self._eat(varname, advance=False, classification=varname_classification)
             self.tokenizer.token = next_token
         elif ( 
