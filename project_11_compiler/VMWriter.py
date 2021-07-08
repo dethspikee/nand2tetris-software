@@ -24,7 +24,7 @@ class VMWriter:
         Writes a VM arithmetic-logical command.
         """
         if command == "*":
-            self.write_call("Math.mult", 2);
+            self.write_call("Math.multiply", 2);
         elif command == "/":
             self.write_call("Math.divide", 2);
         else:
@@ -69,7 +69,7 @@ class VMWriter:
         """
         Writes a VM return command.
         """
-        pass
+        self.fp.write("return\n")
     
     def close(self) -> None:
         """
