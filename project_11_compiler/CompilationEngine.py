@@ -436,11 +436,17 @@ class CompilationEngine:
             self._eat(varname, advance=False, classification=varname_classification)
             self.tokenizer.token = next_token
         elif varname_classification == "stringConstant" or varname in {
-            "true",
-            "false",
             "null",
             "this",
         }:
+            self._eat(varname, advance=False, classification=varname_classification)
+            self.tokenizer.token = next_token
+        elif varname == "true":
+            self.vmwriter.write_push("constant", 1)
+            self.vmwriter.write_negation()
+            self._eat(varname, advance=False, classification=varname_classification)
+            self.tokenizer.token = next_token
+        elif varname == "false":
             self._eat(varname, advance=False, classification=varname_classification)
             self.tokenizer.token = next_token
         elif varname == "(":
