@@ -32,6 +32,9 @@ class VMWriter:
                 "+": "add",
                 "-": "sub",
                 "<": "le",
+                ">": "gt",
+                "&": "and",
+                "=": "eq",
             }
             self.fp.write(f"{commands[command]}\n")
 
