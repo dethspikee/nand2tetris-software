@@ -126,6 +126,7 @@ class CompilationEngine:
                 self._eat("void")
             else:
                 self._compile_type()
+            print(f"Class name: {self.class_name}")
             self.function_name = f"{self.class_name}.{self.tokenizer.token}"
             self._compile_subroutine_name()
             self._eat("(")
@@ -250,7 +251,6 @@ class CompilationEngine:
             self.items_pushed_on_stack += 1
             self.file_obj.write(" " * self.indent + "<expression>\n")
             self._increase_indent()
-            print("adding this: ")
             self.routine_symbol_table.show_table()
             self._eat(
                 "this",
@@ -305,6 +305,7 @@ class CompilationEngine:
             elif self.tokenizer.token == "return":
                 self._compile_return()
             elif self.tokenizer.token == "while":
+                self.label_counter += 1
                 self._compile_while()
             elif self.tokenizer.token == "if":
                 self.label_counter += 1
@@ -406,13 +407,21 @@ class CompilationEngine:
         self._increase_indent()
         self.file_obj.write(" " * self.indent + "<whileStatement>\n")
         self._increase_indent()
+        label_endwhile = f"{self.function_name}.{self.label_counter}"
+        self.label_counter += 1
+        label_while = f"{self.function_name}.{self.label_counter}"
+        self.vmwriter.write_label(label_while)
         self._eat("while")
         self._eat("(")
         self._compile_expression()
         self._eat(")")
+        self.vmwriter.write_negation()
+        self.vmwriter.write_if(label_endwhile)
         self._eat("{")
         self._compile_statements()
+        self.vmwriter.write_goto(label_while)
         self._eat("}")
+        self.vmwriter.write_label(label_endwhile)
         self._decrease_indent()
         self.file_obj.write(" " * self.indent + "</whileStatement>\n")
         self._decrease_indent()
@@ -504,10 +513,6 @@ class CompilationEngine:
             self._eat("(")
             self._compile_expression_list()
             self._eat(")")
-            print("im here")
-            print("class name: ", self.class_name)
-            print("function name: ", self.function_name)
-            print("values pushed: ", self.items_pushed_on_stack)
             self.vmwriter.write_call(f"{self.class_name}.{self.function_name}",
                     self.items_pushed_on_stack)
             self.items_pushed_on_stack = 0
