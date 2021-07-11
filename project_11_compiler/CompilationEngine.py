@@ -318,19 +318,26 @@ class CompilationEngine:
         self._increase_indent()
         self.file_obj.write(" " * self.indent + "<ifStatement>\n")
         self._increase_indent()
+        label_else = f"{self.function_name}.{self.label_counter}"
         self._eat("if")
         self._eat("(")
         self._compile_expression()
         self._eat(")")
+        self.vmwriter.write_negation()
+        self.vmwriter.write_if(label_else)
         self._eat("{")
         self._compile_statements()
+        self.label_counter += 1
+        label_endif = f"{self.function_name}.{self.label_counter}"
+        self.vmwriter.write_goto(label_endif)
         self._eat("}")
         if self.tokenizer.token == "else":
-            self.label_counter += 1
             self._eat("else")
             self._eat("{")
+            self.vmwriter.write_label(label_else)
             self._compile_statements()
             self._eat("}")
+        self.vmwriter.write_label(label_endif)
         self._decrease_indent()
         self.file_obj.write(" " * self.indent + "</ifStatement>\n")
         self._decrease_indent()
@@ -451,6 +458,7 @@ class CompilationEngine:
             self._eat(varname, advance=False, classification=varname_classification)
             self.tokenizer.token = next_token
         elif varname == "false":
+            self.vmwriter.write_push("constant", 0)
             self._eat(varname, advance=False, classification=varname_classification)
             self.tokenizer.token = next_token
         elif varname == "(":
@@ -467,6 +475,7 @@ class CompilationEngine:
             self._eat(varname, advance=False, classification=varname_classification)
             self.tokenizer.token = next_token
             self._compile_term()
+            self.vmwriter.write_negation()
         elif varname_classification == "identifier" and next_token == "[":
             self._eat(
                 varname,
