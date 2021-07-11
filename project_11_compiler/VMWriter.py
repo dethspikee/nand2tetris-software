@@ -48,19 +48,19 @@ class VMWriter:
         """
         Writes a VM label command.
         """
-        pass
+        self.fp.write(f"label {label}\n")
     
     def write_goto(self, label: str) -> None:
         """
         Writes a VM goto command.
         """
-        pass
+        self.fp.write(f"goto {label}\n")
 
     def write_if(self, label: str) -> None:
         """
         Writes a VM if-goto command.
         """
-        pass
+        self.fp.write(f"if-goto {label}\n")
 
     def write_call(self, name: str, nArgs: int) -> None:
         """
