@@ -25,6 +25,7 @@ class CompilationEngine:
         self.class_name = ""
         self.function_name = ""
         self.items_pushed_on_stack = 0
+        self.label_counter = 0
 
     def parse(self) -> None:
         """
@@ -115,6 +116,7 @@ class CompilationEngine:
         """
         while self.tokenizer.token in {"constructor", "function", "method"}:
             self.routine_symbol_table.start_subroutine()
+            self.label_counter = 0
             self.file_obj.write(" " * self.indent + "<subroutineDec>\n")
             if self.tokenizer.token == "method":
                 self.routine_symbol_table.define("this", self.class_name, "argument")
@@ -305,6 +307,7 @@ class CompilationEngine:
             elif self.tokenizer.token == "while":
                 self._compile_while()
             elif self.tokenizer.token == "if":
+                self.label_counter += 1
                 self._compile_if()
         self.file_obj.write(" " * self.indent + "</statements>\n")
 
@@ -323,6 +326,7 @@ class CompilationEngine:
         self._compile_statements()
         self._eat("}")
         if self.tokenizer.token == "else":
+            self.label_counter += 1
             self._eat("else")
             self._eat("{")
             self._compile_statements()
