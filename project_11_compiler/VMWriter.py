@@ -31,10 +31,11 @@ class VMWriter:
             commands = {
                 "+": "add",
                 "-": "sub",
+                "=": "eq",
                 "<": "le",
                 ">": "gt",
                 "&": "and",
-                "=": "eq",
+                "~": "not",
             }
             self.fp.write(f"{commands[command]}\n")
 
