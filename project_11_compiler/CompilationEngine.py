@@ -201,6 +201,9 @@ class CompilationEngine:
         token = self.tokenizer.token
         next_token = next(self.tokenizer.tokens)
         if next_token == "." and token in self.routine_symbol_table.table:
+            self.items_pushed_on_stack += 1
+            token_type = self.routine_symbol_table.type_of(token)
+            class_name = token_type
             self._eat(token, advance=False, category="object", meaning="expression")
             self.tokenizer.token = next_token
             self._eat(".")
@@ -208,6 +211,10 @@ class CompilationEngine:
             self._compile_subroutine_name()
             self._eat("(")
             self._compile_expression_list()
+            self.vmwriter.write_call(
+                f"{token_type}.{self.function_name}", self.items_pushed_on_stack
+            )
+            self.items_pushed_on_stack = 0
             self._eat(")")
         elif next_token == "." and token not in self.routine_symbol_table.table:
             class_name_copy = token
@@ -215,7 +222,7 @@ class CompilationEngine:
             self.tokenizer.token = next_token
             self._eat(".")
             self.function_name = self.tokenizer.token
-            self._compile_subroutine_name(method=False)
+            self._compile_subroutine_name()
             self._eat("(")
             self._compile_expression_list()
             self.vmwriter.write_call(
@@ -228,7 +235,7 @@ class CompilationEngine:
             self._eat(token, advance=False, category="method", meaning="expression")
             self.tokenizer.token = next_token
             self._eat("(")
-            self._compile_expression_list(method=True)
+            self._compile_expression_list()
             self._eat(")")
         elif next_token == "[":
             self._eat(token, advance=False, category="class", meaning="expression")
@@ -243,21 +250,6 @@ class CompilationEngine:
         """
         self.file_obj.write(" " * self.indent + "<expressionList>\n")
         self._increase_indent()
-        if method:
-            # since this is method call, push 'this' on top of stack
-            # expression list
-            self.items_pushed_on_stack += 1
-            self.file_obj.write(" " * self.indent + "<expression>\n")
-            self._increase_indent()
-            self.routine_symbol_table.show_table()
-            self._eat(
-                "this",
-                advance=False,
-                classification="identifier",
-                meaning="object reference",
-            )
-            self._decrease_indent()
-            self.file_obj.write(" " * self.indent + "</expression>\n")
         if self.tokenizer.token != ")":
             self.items_pushed_on_stack += 1
             self._compile_expression()
