@@ -126,7 +126,6 @@ class CompilationEngine:
                 self._eat("void")
             else:
                 self._compile_type()
-            print(f"Class name: {self.class_name}")
             self.function_name = f"{self.class_name}.{self.tokenizer.token}"
             self._compile_subroutine_name()
             self._eat("(")
@@ -202,7 +201,6 @@ class CompilationEngine:
         token = self.tokenizer.token
         next_token = next(self.tokenizer.tokens)
         if next_token == "." and token in self.routine_symbol_table.table:
-            self.class_name = token
             self._eat(token, advance=False, category="object", meaning="expression")
             self.tokenizer.token = next_token
             self._eat(".")
@@ -212,7 +210,7 @@ class CompilationEngine:
             self._compile_expression_list()
             self._eat(")")
         elif next_token == "." and token not in self.routine_symbol_table.table:
-            self.class_name = token
+            class_name_copy = token
             self._eat(token, advance=False, category="class", meaning="expression")
             self.tokenizer.token = next_token
             self._eat(".")
@@ -221,7 +219,7 @@ class CompilationEngine:
             self._eat("(")
             self._compile_expression_list()
             self.vmwriter.write_call(
-                f"{self.class_name}.{self.function_name}", self.items_pushed_on_stack
+                f"{class_name_copy}.{self.function_name}", self.items_pushed_on_stack
             )
             self.items_pushed_on_stack = 0
             self._eat(")")
@@ -324,7 +322,7 @@ class CompilationEngine:
         self._eat("(")
         self._compile_expression()
         self._eat(")")
-        self.vmwriter.write_negation()
+        self.vmwriter.write_arithmetic("~")
         self.vmwriter.write_if(label_else)
         self._eat("{")
         self._compile_statements()
@@ -415,7 +413,7 @@ class CompilationEngine:
         self._eat("(")
         self._compile_expression()
         self._eat(")")
-        self.vmwriter.write_negation()
+        self.vmwriter.write_arithmetic("~")
         self.vmwriter.write_if(label_endwhile)
         self._eat("{")
         self._compile_statements()
@@ -484,7 +482,7 @@ class CompilationEngine:
             self._eat(varname, advance=False, classification=varname_classification)
             self.tokenizer.token = next_token
             self._compile_term()
-            self.vmwriter.write_negation()
+            self.vmwriter.write_arithmetic("~")
         elif varname_classification == "identifier" and next_token == "[":
             self._eat(
                 varname,
@@ -498,7 +496,7 @@ class CompilationEngine:
             self._compile_expression()
             self._eat("]")
         elif varname_classification == "identifier" and next_token == ".":
-            self.class_name = varname
+            class_name = varname
             self._eat(
                 varname,
                 advance=False,
@@ -513,7 +511,7 @@ class CompilationEngine:
             self._eat("(")
             self._compile_expression_list()
             self._eat(")")
-            self.vmwriter.write_call(f"{self.class_name}.{self.function_name}",
+            self.vmwriter.write_call(f"{class_name}.{self.function_name}",
                     self.items_pushed_on_stack)
             self.items_pushed_on_stack = 0
         elif varname_classification == "identifier" and next_token == "(":
