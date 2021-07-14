@@ -116,11 +116,11 @@ class CompilationEngine:
         """
         Compiles a subroutine declaration.
         """
-        if self.tokenizer.token == "constructor":
-            self.constructor = True
-        elif self.tokenizer.token == "method":
-            self.method = True
         while self.tokenizer.token in {"constructor", "function", "method"}:
+            if self.tokenizer.token == "constructor":
+                self.constructor = True
+            elif self.tokenizer.token == "method":
+                self.method = True
             self.routine_symbol_table.start_subroutine()
             self.label_counter = 0
             self.file_obj.write(" " * self.indent + "<subroutineDec>\n")
@@ -194,7 +194,6 @@ class CompilationEngine:
         self._eat("{")
         while self.tokenizer.token == "var":
             self._compile_var_dec()
-        print("this is functioN: ", self.function_name)
         self.vmwriter.write_function(
             self.function_name, self.routine_symbol_table.var_count("local")
         )
