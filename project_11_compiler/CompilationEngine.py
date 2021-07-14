@@ -4,7 +4,6 @@ from VMWriter import VMWriter
 from SymbolTable import SymbolTable
 from exceptions import IncorrectVariableName
 
-
 class CompilationEngine:
     """
     Class that effects the actual compilation output.
@@ -26,6 +25,7 @@ class CompilationEngine:
         self.function_name = ""
         self.items_pushed_on_stack = 0
         self.label_counter = 0
+        self.constructor = False
 
     def parse(self) -> None:
         """
@@ -115,6 +115,8 @@ class CompilationEngine:
         """
         Compiles a subroutine declaration.
         """
+        if self.tokenizer.token == "constructor":
+            self.constructor = True
         while self.tokenizer.token in {"constructor", "function", "method"}:
             self.routine_symbol_table.start_subroutine()
             self.label_counter = 0
@@ -134,6 +136,7 @@ class CompilationEngine:
             self._eat(")")
             self._compile_subroutine_body()
             self._decrease_indent()
+            self.constructor = False
             self.file_obj.write(" " * self.indent + "</subroutineDec>\n")
             self.routine_symbol_table.show_table()
 
@@ -187,9 +190,16 @@ class CompilationEngine:
         self._eat("{")
         while self.tokenizer.token == "var":
             self._compile_var_dec()
+        print("this is functioN: ", self.function_name)
         self.vmwriter.write_function(
             self.function_name, self.routine_symbol_table.var_count("local")
         )
+        if self.constructor:
+            var_needed = 0
+            var_needed += self.class_symbol_table.var_count("field")
+            self.vmwriter.write_push("constant", var_needed)
+            self.vmwriter.write_call("Memory.alloc", 1)
+            self.vmwriter.write_pop("pointer", 0)
         self._compile_statements()
         self._eat("}")
         self._decrease_indent()
@@ -236,7 +246,13 @@ class CompilationEngine:
             self._eat(token, advance=False, category="method", meaning="expression")
             self.tokenizer.token = next_token
             self._eat("(")
+            self.vmwriter.write_push("pointer", 0)
+            self.items_pushed_on_stack += 1
             self._compile_expression_list()
+            self.vmwriter.write_call(
+                f"{self.class_name}.{function_name}", self.items_pushed_on_stack
+            )
+            self.items_pushed_on_stack = 0
             self._eat(")")
         elif next_token == "[":
             self._eat(token, advance=False, category="class", meaning="expression")
@@ -354,7 +370,10 @@ class CompilationEngine:
         self._compile_expression()
         self._eat(";")
         self._decrease_indent()
-        self.vmwriter.write_pop(varname_category, varname_index)
+        if self.constructor:
+            self.vmwriter.write_pop("this", varname_index)
+        else:
+            self.vmwriter.write_pop(varname_category, varname_index)
         self.file_obj.write(" " * self.indent + f"</letStatement>\n")
         self._decrease_indent()
 
@@ -381,6 +400,8 @@ class CompilationEngine:
         self.file_obj.write(" " * self.indent + "<returnStatement>\n")
         self._increase_indent()
         self._eat("return")
+        if self.constructor:
+            self.vmwriter.write_push("pointer", 0)
         if self.tokenizer.token != ";":
             self._compile_expression()
         else:
