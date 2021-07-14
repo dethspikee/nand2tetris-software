@@ -26,6 +26,7 @@ class CompilationEngine:
         self.items_pushed_on_stack = 0
         self.label_counter = 0
         self.constructor = False
+        self.method = False
 
     def parse(self) -> None:
         """
@@ -117,6 +118,8 @@ class CompilationEngine:
         """
         if self.tokenizer.token == "constructor":
             self.constructor = True
+        elif self.tokenizer.token == "method":
+            self.method = True
         while self.tokenizer.token in {"constructor", "function", "method"}:
             self.routine_symbol_table.start_subroutine()
             self.label_counter = 0
@@ -137,6 +140,7 @@ class CompilationEngine:
             self._compile_subroutine_body()
             self._decrease_indent()
             self.constructor = False
+            self.method = False
             self.file_obj.write(" " * self.indent + "</subroutineDec>\n")
             self.routine_symbol_table.show_table()
 
@@ -199,6 +203,9 @@ class CompilationEngine:
             var_needed += self.class_symbol_table.var_count("field")
             self.vmwriter.write_push("constant", var_needed)
             self.vmwriter.write_call("Memory.alloc", 1)
+            self.vmwriter.write_pop("pointer", 0)
+        elif self.method:
+            self.vmwriter.write_push("argument", 0)
             self.vmwriter.write_pop("pointer", 0)
         self._compile_statements()
         self._eat("}")
@@ -468,9 +475,12 @@ class CompilationEngine:
             self._eat(varname, advance=False, classification=varname_classification)
             self.tokenizer.token = next_token
         elif varname_classification == "stringConstant" or varname in {
-            "null",
-            "this",
+            "null"
         }:
+            self._eat(varname, advance=False, classification=varname_classification)
+            self.tokenizer.token = next_token
+        elif varname == "this":
+            self.vmwriter.write_push("pointer", 0)
             self._eat(varname, advance=False, classification=varname_classification)
             self.tokenizer.token = next_token
         elif varname == "true":
