@@ -407,8 +407,6 @@ class CompilationEngine:
         self.file_obj.write(" " * self.indent + "<returnStatement>\n")
         self._increase_indent()
         self._eat("return")
-        if self.constructor:
-            self.vmwriter.write_push("pointer", 0)
         if self.tokenizer.token != ";":
             self._compile_expression()
         else:
