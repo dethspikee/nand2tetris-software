@@ -77,6 +77,7 @@ class CompilationEngine:
             self._eat(self.tokenizer.token)
             type = self.tokenizer.token
             self._compile_type()
+            name = self.tokenizer.token
             self.class_symbol_table.define(name, type, kind)
             self._compile_var_name(meaning="define")
             while self.tokenizer.token == ",":
@@ -344,7 +345,7 @@ class CompilationEngine:
         varname = self.tokenizer.token
         varname_index = self._search_for_index(varname)
         varname_category = self._search_for_category(varname)
-        self._compile_var_name(meaning="assign")
+        self._compile_var_name(category=varname_category, meaning="assign")
         if self.tokenizer.token == "[":
             self._eat("[")
             self._compile_expression()
