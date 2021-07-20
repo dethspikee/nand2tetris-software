@@ -35,7 +35,7 @@ class CompilationEngine:
         """
         while self.tokenizer.has_tokens():
             self._compile_class()
-        self.class_symbol_table.show_table()
+        #self.class_symbol_table.show_table()
 
     def _compile_class(self) -> None:
         """
@@ -142,7 +142,7 @@ class CompilationEngine:
             self.constructor = False
             self.method = False
             self.file_obj.write(" " * self.indent + "</subroutineDec>\n")
-            self.routine_symbol_table.show_table()
+            #self.routine_symbol_table.show_table()
 
     def _compile_parameter_list(self) -> None:
         """
@@ -607,7 +607,8 @@ class CompilationEngine:
             self.tokenizer.advance()
 
     def _handle_identifier(self, token, classification, **kwargs):
-        if token in (self.routine_symbol_table.table or self.class_symbol_table.table):
+        if token in self.routine_symbol_table.table or \
+                token in self.class_symbol_table.table:
             meaning = kwargs.get("meaning")
             category = (
                 self.class_symbol_table.kind_of(token)
@@ -623,8 +624,12 @@ class CompilationEngine:
             )
             self.file_obj.write(f" {token} ")
             self.file_obj.write(f"</{classification}>\n")
+
             if meaning == "expression":
-                self.vmwriter.write_push(category, int(running_index))
+                if category == "field":
+                    self.vmwriter.write_push("this", int(running_index))
+                else:
+                    self.vmwriter.write_push(category, int(running_index))
         else:
             category = kwargs["category"]
             self.file_obj.write(
