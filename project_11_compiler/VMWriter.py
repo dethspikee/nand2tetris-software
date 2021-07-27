@@ -32,7 +32,7 @@ class VMWriter:
                 "+": "add",
                 "-": "sub",
                 "=": "eq",
-                "<": "le",
+                "<": "lt",
                 ">": "gt",
                 "&": "and",
                 "~": "not",
