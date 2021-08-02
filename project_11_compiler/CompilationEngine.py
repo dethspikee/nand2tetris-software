@@ -242,9 +242,16 @@ class CompilationEngine:
             self._compile_subroutine_name()
             self._eat("(")
             self._compile_expression_list()
-            self.vmwriter.write_call(
-                f"{class_name_copy}.{self.function_name}", self.items_pushed_on_stack
-            )
+            if token in self.class_symbol_table.table:
+                self.items_pushed_on_stack += 1
+                type = self.class_symbol_table.type_of(token)
+                self.vmwriter.write_call(
+                    f"{type}.{self.function_name}", self.items_pushed_on_stack
+                )
+            else:
+                self.vmwriter.write_call(
+                    f"{class_name_copy}.{self.function_name}", self.items_pushed_on_stack
+                )
             self.items_pushed_on_stack = 0
             self._eat(")")
         elif next_token == "(":
@@ -338,7 +345,6 @@ class CompilationEngine:
         self._compile_expression()
         self._eat(")")
         self.vmwriter.write_arithmetic("~")
-        print("label else: ", label_else)
         self.vmwriter.write_if(label_else)
         self._eat("{")
         self._compile_statements()
@@ -352,7 +358,6 @@ class CompilationEngine:
             self._eat("{")
             self._compile_statements()
             self._eat("}")
-        print("label: ", label_endif)
         self.vmwriter.write_label(label_endif)
         self._decrease_indent()
         self.file_obj.write(" " * self.indent + "</ifStatement>\n")
@@ -379,6 +384,8 @@ class CompilationEngine:
         self._eat(";")
         self._decrease_indent()
         if self.constructor:
+            self.vmwriter.write_pop("this", varname_index)
+        elif varname_category == "field":
             self.vmwriter.write_pop("this", varname_index)
         else:
             self.vmwriter.write_pop(varname_category, varname_index)
