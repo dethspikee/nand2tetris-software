@@ -481,7 +481,8 @@ class CompilationEngine:
             self._eat(varname, advance=False, classification=varname_classification)
             self.tokenizer.token = next_token
         elif varname_classification == "stringConstant":
-            string_length = len(varname) - 2
+            removed_quotes = varname.strip('"')
+            string_length = len(removed_quotes)
             self.vmwriter.write_push("constant", string_length)
             self._eat(varname, advance=False, classification=varname_classification)
             self.tokenizer.token = next_token
