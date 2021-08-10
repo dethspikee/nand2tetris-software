@@ -484,6 +484,11 @@ class CompilationEngine:
             removed_quotes = varname.strip('"')
             string_length = len(removed_quotes)
             self.vmwriter.write_push("constant", string_length)
+            self.vmwriter.write_call("String.new", 1)
+            for char in removed_quotes:
+                ascii = ord(char)
+                self.vmwriter.write_push("constant", ascii)
+                self.vmwriter.write_call("String.appendChar", 2)
             self._eat(varname, advance=False, classification=varname_classification)
             self.tokenizer.token = next_token
         elif varname == "null":
