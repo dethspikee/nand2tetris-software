@@ -480,9 +480,12 @@ class CompilationEngine:
             self.vmwriter.write_push("constant", int(varname))
             self._eat(varname, advance=False, classification=varname_classification)
             self.tokenizer.token = next_token
-        elif varname_classification == "stringConstant" or varname in {
-            "null"
-        }:
+        elif varname_classification == "stringConstant":
+            string_length = len(varname) - 2
+            self.vmwriter.write_push("constant", string_length)
+            self._eat(varname, advance=False, classification=varname_classification)
+            self.tokenizer.token = next_token
+        elif varname == "null":
             self._eat(varname, advance=False, classification=varname_classification)
             self.tokenizer.token = next_token
         elif varname == "this":
