@@ -367,6 +367,7 @@ class CompilationEngine:
         """
         Compiles let statements.
         """
+        array_expression = False
         self._increase_indent()
         self.file_obj.write(" " * self.indent + f"<letStatement>\n")
         self._increase_indent()
@@ -376,9 +377,12 @@ class CompilationEngine:
         varname_category = self._search_for_category(varname)
         self._compile_var_name(category=varname_category, meaning="assign")
         if self.tokenizer.token == "[":
+            array_expression = True
             self._eat("[")
             self._compile_expression()
             self._eat("]")
+            self.vmwriter.write_push(varname_category, varname_index)
+            self.vmwriter.write_arithmetic("+")
         self._eat("=")
         self._compile_expression()
         self._eat(";")
@@ -387,6 +391,12 @@ class CompilationEngine:
             self.vmwriter.write_pop("this", varname_index)
         elif varname_category == "field":
             self.vmwriter.write_pop("this", varname_index)
+        elif array_expression:
+            self.vmwriter.write_pop("temp", 0)
+            self.vmwriter.write_pop("pointer", 1)
+            self.vmwriter.write_push("temp", 0)
+            self.vmwriter.write_pop("that", 0)
+            #self.vmwriter.write_pop(varname_category, varname_index)
         else:
             self.vmwriter.write_pop(varname_category, varname_index)
         self.file_obj.write(" " * self.indent + f"</letStatement>\n")
@@ -523,6 +533,10 @@ class CompilationEngine:
             self._compile_term()
             self.vmwriter.write_arithmetic("~")
         elif varname_classification == "identifier" and next_token == "[":
+            self.tokenizer.token = next_token
+            self._eat("[")
+            self._compile_expression()
+            self._eat("]")
             self._eat(
                 varname,
                 advance=False,
@@ -530,10 +544,6 @@ class CompilationEngine:
                 category="variable",
                 meaning="expression",
             )
-            self.tokenizer.token = next_token
-            self._eat("[")
-            self._compile_expression()
-            self._eat("]")
         elif varname_classification == "identifier" and next_token == ".":
             class_name = varname
             self._eat(
