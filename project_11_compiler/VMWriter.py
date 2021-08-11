@@ -36,6 +36,7 @@ class VMWriter:
                 ">": "gt",
                 "&": "and",
                 "~": "not",
+                "|": "or",
             }
             self.fp.write(f"{commands[command]}\n")
 
