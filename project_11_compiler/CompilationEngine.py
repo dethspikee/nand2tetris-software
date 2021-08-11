@@ -544,6 +544,9 @@ class CompilationEngine:
                 category="variable",
                 meaning="expression",
             )
+            self.vmwriter.write_arithmetic("+")
+            self.vmwriter.write_pop("pointer", 1)
+            self.vmwriter.write_push("that", 0)
         elif varname_classification == "identifier" and next_token == ".":
             class_name = varname
             self._eat(
