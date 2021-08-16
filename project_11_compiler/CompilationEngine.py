@@ -233,6 +233,22 @@ class CompilationEngine:
             )
             self.items_pushed_on_stack = 0
             self._eat(")")
+        elif next_token == "." and token in self.class_symbol_table.table:
+            type = self.class_symbol_table.type_of(token)
+            class_name_copy = token
+            self._eat(token, advance=False, category="class", meaning="expression")
+            self.tokenizer.token = next_token
+            self._eat(".")
+            self.function_name = self.tokenizer.token
+            self._compile_subroutine_name()
+            self._eat("(")
+            self._compile_expression_list()
+            self.items_pushed_on_stack += 1
+            self.vmwriter.write_call(
+                f"{type}.{self.function_name}", self.items_pushed_on_stack
+            )
+            self.items_pushed_on_stack = 0
+            self._eat(")")
         elif next_token == "." and token not in self.routine_symbol_table.table:
             class_name_copy = token
             self._eat(token, advance=False, category="class", meaning="expression")
@@ -563,8 +579,14 @@ class CompilationEngine:
             self._eat("(")
             self._compile_expression_list()
             self._eat(")")
-            self.vmwriter.write_call(f"{class_name}.{self.function_name}",
-                    self.items_pushed_on_stack)
+            if class_name in self.class_symbol_table.table:
+                type = self.class_symbol_table.type_of(class_name)
+                self.items_pushed_on_stack += 1
+                self.vmwriter.write_call(f"{type}.{self.function_name}",
+                        self.items_pushed_on_stack)
+            else:
+                self.vmwriter.write_call(f"{class_name}.{self.function_name}",
+                        self.items_pushed_on_stack)
             self.items_pushed_on_stack = 0
         elif varname_classification == "identifier" and next_token == "(":
             self._eat(
